@@ -78,47 +78,55 @@ extension StringExtensions on String {
       return "paramPtr";
     } else if (result == "m_cubParam") {
       return "paramSize";
-    } else if (result == "bActive") {
-      return "active";
-    } else if (result == "bState") {
-      return "state";
+    } else if (result == "ullUniqueGameID") {
+      return "uniqueGameId";
     } else if (result.endsWith("_t")) {
       result = result.replaceFirst("_t", "");
-    } else if (result.startsWith("k_")) {
+    } else if (result.startsWith("k_") && result[2].toUpperCase() == result[2]) {
       result = result.replaceFirst("k_", "");
-    } else if (result.startsWith("m_un")) {
+    } else if (result.startsWith("b") && result[1].toUpperCase() == result[1]) {
+      result = result.replaceFirst("b", "");
+    } else if (result.startsWith("e") && result[1].toUpperCase() == result[1]) {
+      result = result.replaceFirst("e", "");
+    } else if (result.startsWith("pch") && result[3].toUpperCase() == result[3]) {
+      result = result.replaceFirst("pch", "");
+    } else if (result.startsWith("un") && result[2].toUpperCase() == result[2]) {
+      result = result.replaceFirst("un", "");
+    } else if (result.startsWith("m_un") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_un", "");
-    } else if (result.startsWith("m_us")) {
+    } else if (result.startsWith("m_us") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_us", "");
-    } else if (result.startsWith("m_sz")) {
+    } else if (result.startsWith("m_sz") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_sz", "");
-    } else if (result.startsWith("m_h")) {
+    } else if (result.startsWith("m_h") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_h", "");
-    } else if (result.startsWith("m_pp")) {
+    } else if (result.startsWith("m_pp") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_pp", "");
-    } else if (result.startsWith("m_e")) {
+    } else if (result.startsWith("m_e") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_e", "");
-    } else if (result.startsWith("m_ul")) {
+    } else if (result.startsWith("m_ul") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_ul", "");
-    } else if (result.startsWith("m_fl")) {
+    } else if (result.startsWith("m_fl") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_fl", "");
-    } else if (result.startsWith("m_u")) {
+    } else if (result.startsWith("m_u") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_u", "");
-    } else if (result.startsWith("m_b")) {
+    } else if (result.startsWith("m_b") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_b", "");
-    } else if (result.startsWith("m_i")) {
+    } else if (result.startsWith("m_i") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_i", "");
-    } else if (result.startsWith("m_pub")) {
+    } else if (result.startsWith("m_pub") && result[5].toUpperCase() == result[5]) {
       result = result.replaceFirst("m_pub", "");
-    } else if (result.startsWith("m_cub")) {
+    } else if (result.startsWith("m_cub") && result[5].toUpperCase() == result[5]) {
       result = result.replaceFirst("m_cub", "");
-    } else if (result.startsWith("m_n")) {
+    } else if (result.startsWith("m_n") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_n", "");
-    } else if (result.startsWith("m_rgch")) {
+    } else if (result.startsWith("m_rgch") && result[6].toUpperCase() == result[6]) {
       result = result.replaceFirst("m_rgch", "");
-    } else if (result.startsWith("m_r")) {
+    } else if (result.startsWith("m_rg") && result[4].toUpperCase() == result[4]) {
+      result = result.replaceFirst("m_rg", "");
+    } else if (result.startsWith("m_r") && result[3].toUpperCase() == result[3]) {
       result = result.replaceFirst("m_r", "");
-    } else if (result.startsWith("m_cb")) {
+    } else if (result.startsWith("m_cb") && result[4].toUpperCase() == result[4]) {
       result = result.replaceFirst("m_cb", "");
       if (!result.contains("Size")) {
         result += "Size";
