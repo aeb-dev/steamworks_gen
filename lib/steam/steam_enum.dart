@@ -11,6 +11,12 @@ class SteamEnum {
   /// List of values that enum holds
   late List<SteamEnumValue> values;
 
+  SteamEnum({
+    required this.name,
+    this.fqName = "",
+    required this.values,
+  });
+
   /// Creates a [SteamEnum] from json
   SteamEnum.fromJson(Map<String, dynamic> json) {
     name = json["enumname"];

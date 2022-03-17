@@ -3,6 +3,8 @@ import "dart:io";
 import "package:path/path.dart" as p;
 
 import "../../steam/steam_api.dart";
+import "../../steam/steam_enum.dart";
+import "../../steam/steam_enum_value.dart";
 import "../../steam/steam_field.dart";
 import "../../steam/steam_interface.dart";
 import "../../steam/steam_struct.dart";
@@ -61,6 +63,19 @@ extension SteamApiExtensions on SteamApi {
       SteamInterface(name: "ISteamNetworkingSignalingRecvContext"),
     ];
 
+    SteamEnum callbackIdEnum = SteamEnum(
+      name: "CallbackId",
+      values: callbackStructs
+          .where((struct) => struct.callbackId != -1)
+          .map(
+            (struct) => SteamEnumValue(
+              name: struct.name,
+              value: struct.callbackId,
+            ),
+          )
+          .toList(growable: false),
+    );
+
     // Set<String> typedefSet = typedefs.map((t) => t.typedef).toSet();
 
     Set<String> enumSet = enums.map((e) => e.name).toSet();
@@ -78,7 +93,10 @@ extension SteamApiExtensions on SteamApi {
       ..addAll(missingInterfaces.map((i) => i.name));
 
     await generateSteamCommonApi(path);
-    await consts.generate(path, FileMode.writeOnly);
+    await consts.generateFile(
+      path,
+      FileMode.writeOnly,
+    );
     await typedefs.generate(path);
     await enums.generate(path);
     await missingStructs.generate(
@@ -107,6 +125,9 @@ extension SteamApiExtensions on SteamApi {
       structSet,
       callbackStructSet,
     );
+
+    await callbackIdEnum.generateFile(path);
+
     await missingInterfaces.generate(
       path,
       enumSet,
@@ -136,29 +157,32 @@ extension SteamApiExtensions on SteamApi {
     fileSink.writeImport("typedefs.dart");
 
     fileSink.writeln(
-      "DynamicLibrary dl = DynamicLibrary.open(\"C:/Repos/aeb-dev/steamworks/bin/steam_api64.dll\");",
+      "DynamicLibrary dl = DynamicLibrary.open(\"C:/Repos/aeb-dev/steamworks/bin/steam_api64.dll\");\n",
     );
 
     fileSink.writeln(
-      "final _init = dl.lookupFunction<Bool Function(), bool Function()>(\"SteamAPI_Init\");",
+      "final _init = dl.lookupFunction<Bool Function(), bool Function()>(\"SteamAPI_Init\");\n",
     );
-    fileSink.writeln("bool init() => _init.call();");
+    fileSink.writeln(
+      "final _manualDispatchInit = dl.lookupFunction<Void Function(), void Function()>(\"SteamAPI_ManualDispatch_Init\");\n",
+    );
+    fileSink.writeln(
+      "final _shutdown = dl.lookupFunction<Void Function(), void Function()>(\"SteamAPI_Shutdown\");\n",
+    );
+    fileSink.writeln(
+      "final _getHSteamPipe = dl.lookupFunction<Int32 Function(), HSteamPipe Function()>(\"SteamAPI_GetHSteamPipe\");\n",
+    );
+    fileSink.writeln(
+      "final _restartAppIfNecessary = dl.lookupFunction<Bool Function(Int32), bool Function(int)>(\"SteamAPI_RestartAppIfNecessary\");\n",
+    );
 
+    fileSink.writeln("bool init() => _init.call();\n");
+    fileSink
+        .writeln("void manualDispatchInit() => _manualDispatchInit.call();\n");
+    fileSink.writeln("void shutdown() => _shutdown.call();\n");
+    fileSink.writeln("HSteamPipe getHSteamPipe() => _getHSteamPipe.call();\n");
     fileSink.writeln(
-      "final _shutdown = dl.lookupFunction<Void Function(), void Function()>(\"SteamAPI_Shutdown\");",
-    );
-    fileSink.writeln("void shutdown() => _shutdown.call();");
-
-    fileSink.writeln(
-      "final _getHSteamPipe = dl.lookupFunction<Int32 Function(), HSteamPipe Function()>(\"SteamAPI_GetHSteamPipe\");",
-    );
-    fileSink.writeln("HSteamPipe getHSteamPipe() => _getHSteamPipe.call();");
-
-    fileSink.writeln(
-      "final _restartAppIfNecessary = dl.lookupFunction<Bool Function(Int32), bool Function(int)>(\"SteamAPI_RestartAppIfNecessary\");",
-    );
-    fileSink.writeln(
-      "bool restartAppIfNecessary(int appId) => _restartAppIfNecessary.call(appId);",
+      "bool restartAppIfNecessary(int appId) => _restartAppIfNecessary.call(appId);\n",
     );
 
     await fileSink.flush();

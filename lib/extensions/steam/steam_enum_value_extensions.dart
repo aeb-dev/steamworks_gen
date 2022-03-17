@@ -9,17 +9,20 @@ import "../string_extensions.dart";
 extension SteamEnumValueExtensions on SteamEnumValue {
   /// Generates necessary code for a [SteamEnumValue]
   Future<void> generate(IOSink fileSink, String enumName, int nameIndex) async {
-    String valueName = name.substring(nameIndex);
+    String valueName = name.substring(nameIndex).clearSteamNaming();
     int? valueAsInt = int.tryParse(valueName[0]);
     if (valueAsInt != null) {
       switch (enumName) {
         case "ESteamIpType":
+        case "SteamIpType":
           valueName = "V$valueName";
           break;
         case "EHttpStatusCode":
+        case "HttpStatusCode":
           valueName = "StatusCode$valueName";
           break;
         case "EDurationControlNotification":
+        case "DurationControlNotification":
           valueName = "Duration$valueName";
           break;
         default:

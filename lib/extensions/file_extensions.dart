@@ -1,5 +1,7 @@
 import "dart:io";
 
+import "string_extensions.dart";
+
 /// Extensions for generating dart class with ease
 extension FileExtensions on IOSink {
   /// writes import in a dart file
@@ -39,10 +41,21 @@ extension FileExtensions on IOSink {
   }
 
   /// writes a field of a struct
-  void writeStructField(String fieldName, String fieldType, String annotation) {
+  void writeStructField(
+    String fieldName,
+    String fieldType,
+    String annotation, {
+    bool isPrivate = false,
+  }) {
     if (annotation.isNotEmpty) {
-      write("@$annotation ");
+      writeln("@$annotation ");
     }
+
+    if (isPrivate) {
+      fieldName = "_$fieldName";
+      writeln("  // ignore: unused_field");
+    }
+
     writeln("external $fieldType $fieldName;\n");
   }
 
@@ -67,5 +80,40 @@ extension FileExtensions on IOSink {
     }
 
     write("on $on");
+  }
+
+  /// writes import according its type
+  void importType(
+    String type,
+    Set<String> enumSet,
+    Set<String> structSet,
+    Set<String> callbackStructSet,
+    Set<String> interfaceSet,
+  ) {
+    bool isEnum = enumSet.contains(type);
+    if (isEnum) {
+      writeImport("../enums/${type.toFileName()}.dart");
+      return;
+    }
+
+    bool isStruct = structSet.contains(type);
+    if (isStruct) {
+      writeImport("../structs/${type.toFileName()}.dart");
+      return;
+    }
+
+    bool iscallbackStruct = callbackStructSet.contains(type);
+    if (iscallbackStruct) {
+      writeImport("../callback_structs/${type.toFileName()}.dart");
+      return;
+    }
+
+    bool isInterface = interfaceSet.contains(type);
+    if (isInterface) {
+      writeImport(
+        "../interfaces/${type.clearInterfaceName().toFileName()}.dart",
+      );
+      return;
+    }
   }
 }

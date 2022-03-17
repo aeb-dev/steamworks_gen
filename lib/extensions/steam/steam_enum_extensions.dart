@@ -42,6 +42,24 @@ extension SteamEnumExtensions on SteamEnum {
 
     fileSink.writeEndBlock();
   }
+
+  Future<void> generateFile(String path) async {
+    String fileName = name.toFileName();
+
+    // TODO create enum without E. There is a struct that has the same name
+    // when is E is subtracted, need to find a way to solve the conflict
+    // before doing this
+    String filePath = p.join(path, "enums", "$fileName.dart");
+    File file = File(filePath);
+    await file.create(recursive: true);
+
+    IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+
+    await generate(fileSink);
+
+    await fileSink.flush();
+    await fileSink.close();
+  }
 }
 
 /// Extensions on [Iterable<SteamEnum>] to generate ffi code
@@ -49,21 +67,7 @@ extension SteamEnumIterableExtensions on Iterable<SteamEnum> {
   /// Creates a file for each [SteamEnum] and generates respective code
   Future<void> generate(String path) async {
     for (SteamEnum steamEnum in this) {
-      String fileName = steamEnum.name.toFileName();
-
-      // TODO create enum without E. There is a struct that has the same name
-      // when is E is subtracted, need to find a way to solve the conflict
-      // before doing this
-      String filePath = p.join(path, "enums", "$fileName.dart");
-      File file = File(filePath);
-      await file.create(recursive: true);
-
-      IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
-
-      await steamEnum.generate(fileSink);
-
-      await fileSink.flush();
-      await fileSink.close();
+      await steamEnum.generateFile(path);
     }
   }
 }

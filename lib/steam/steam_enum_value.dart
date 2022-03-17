@@ -6,6 +6,11 @@ class SteamEnumValue {
   /// value of the enum value
   late int value;
 
+  SteamEnumValue({
+    required this.name,
+    required this.value,
+  });
+
   /// Creates a [SteamEnumValue] from json
   SteamEnumValue.fromJson(Map<String, dynamic> json) {
     name = json["name"];

@@ -44,7 +44,7 @@ extension SteamConstExtensions on SteamConst {
 /// Extensions on [Iterable<SteamConst>] to generate ffi code
 extension SteamConstIterableExtensions on Iterable<SteamConst> {
   /// Generates respective code for each [SteamConst]
-  Future<void> generate(
+  Future<void> generateFile(
     String path,
     FileMode fileMode,
   ) async {
@@ -58,12 +58,19 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
       fileSink.writeImport("typedefs.dart");
     }
 
-    for (SteamConst steamConst in this) {
-      await steamConst.generate(fileSink, false);
-    }
+    await generate(fileSink, false);
 
     await fileSink.flush();
     await fileSink.close();
+  }
+
+  Future<void> generate(
+    IOSink fileSink,
+    bool isStatic,
+  ) async {
+    for (SteamConst steamConst in this) {
+      await steamConst.generate(fileSink, isStatic);
+    }
   }
 }
 
