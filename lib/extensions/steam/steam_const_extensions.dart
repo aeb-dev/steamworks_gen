@@ -10,7 +10,10 @@ import "../string_extensions.dart";
 /// Extensions on [SteamConst] to generate ffi code
 extension SteamConstExtensions on SteamConst {
   /// Generates necessary code for a [SteamConst]
-  Future<void> generate(IOSink fileSink, bool isStatic) async {
+  Future<void> generate({
+    required IOSink fileSink,
+    bool isStatic = false,
+  }) async {
     String correctedName = name.clearSteamNaming().afterFirstCapital();
     String correctedType = type.toDartType();
 
@@ -33,21 +36,21 @@ extension SteamConstExtensions on SteamConst {
     }
 
     fileSink.writeConst(
-      correctedType,
-      correctedName.camelCase,
-      correctedValue.camelCase,
-      isStatic,
+      type: correctedType,
+      name: correctedName.camelCase,
+      value: correctedValue.camelCase,
+      isStatic: isStatic,
     );
   }
 }
 
 /// Extensions on [Iterable<SteamConst>] to generate ffi code
 extension SteamConstIterableExtensions on Iterable<SteamConst> {
-  /// Generates respective code for each [SteamConst]
-  Future<void> generateFile(
-    String path,
-    FileMode fileMode,
-  ) async {
+  /// Generates respective file and code for each [SteamConst]
+  Future<void> generateFile({
+    required String path,
+    required FileMode fileMode,
+  }) async {
     String filePath = p.join(path, "constants.dart");
     File file = File(filePath);
     await file.create(recursive: true);
@@ -55,21 +58,30 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
     IOSink fileSink = file.openWrite(mode: fileMode);
 
     if (fileMode == FileMode.writeOnly) {
-      fileSink.writeImport("typedefs.dart");
+      fileSink.writeImport(
+        packageName: "typedefs.dart",
+      );
     }
 
-    await generate(fileSink, false);
+    await generate(
+      fileSink: fileSink,
+      isStatic: false,
+    );
 
     await fileSink.flush();
     await fileSink.close();
   }
 
-  Future<void> generate(
-    IOSink fileSink,
-    bool isStatic,
-  ) async {
+  /// Generates respective file and code for each [SteamConst]
+  Future<void> generate({
+    required IOSink fileSink,
+    bool isStatic = false,
+  }) async {
     for (SteamConst steamConst in this) {
-      await steamConst.generate(fileSink, isStatic);
+      await steamConst.generate(
+        fileSink: fileSink,
+        isStatic: isStatic,
+      );
     }
   }
 }

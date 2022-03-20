@@ -9,8 +9,13 @@ import "../string_extensions.dart";
 /// Extensions on [SteamTypedef] to generate ffi code
 extension SteamTypedefExtensions on SteamTypedef {
   /// Generates necessary code for a [SteamTypedef]
-  Future<void> generate(IOSink fileSink) async {
-    fileSink.writeTypedef(typedef.clearSteamNaming(), type.toDartType());
+  Future<void> generate({
+    required IOSink fileSink,
+  }) async {
+    fileSink.writeTypedef(
+      alias: typedef.clearSteamNaming(),
+      of: type.toDartType(),
+    );
   }
 }
 
@@ -41,23 +46,35 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
   };
 
   /// Creates the typedef file and appends the generated code of each [SteamTypedef]
-  Future<void> generate(String path) async {
+  Future<void> generate({
+    required String path,
+  }) async {
     String filePath = p.join(path, "typedefs.dart");
     File file = File(filePath);
     await file.create(recursive: true);
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    fileSink.writeImport("dart:ffi");
-    fileSink.writeImport("package:ffi/ffi.dart");
-    fileSink.writeTypedef("CSteamId", "int"); // write CSteamID
-    // fileSink.writeTypedef("CSteamIDNative", "Uint64"); // write CSteamID
-    fileSink.writeTypedef("CGameId", "int"); // write CGameID
-    // fileSink.writeTypedef("CGameIDNative", "Uint64"); // write CGameID
+    fileSink.writeImport(
+      packageName: "dart:ffi",
+    );
+    fileSink.writeImport(
+      packageName: "package:ffi/ffi.dart",
+    );
+    fileSink.writeTypedef(
+      alias: "CSteamId",
+      of: "int",
+    ); // write CSteamID
+    fileSink.writeTypedef(
+      alias: "CGameId",
+      of: "int",
+    ); // write CGameID
 
     for (SteamTypedef steamTypedef
         in where((item) => !_typedefSkipList.contains(item.typedef))) {
-      await steamTypedef.generate(fileSink);
+      await steamTypedef.generate(
+        fileSink: fileSink,
+      );
     }
 
     await fileSink.flush();

@@ -8,34 +8,36 @@ import "../string_extensions.dart";
 
 /// Extensions on [SteamField] to generate ffi code
 extension SteamFieldExtensions on SteamField {
-  Future<void> generateImport(
-    IOSink fileSink,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-    Set<String> interfaceSet,
-  ) async {
+  Future<void> generateImport({
+    required IOSink fileSink,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+    Set<String> interfaceSet = const {},
+  }) async {
     String checkType = type.clearClassAccess().clearPointerOrConst().trim();
     fileSink.importType(
-      checkType,
-      enumSet,
-      structSet,
-      callbackStructSet,
-      interfaceSet,
+      type: checkType,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+      interfaceSet: interfaceSet,
     );
   }
 
   /// Generates necessary code for a [SteamField]
-  Future<void> generate(IOSink fileSink) async {
+  Future<void> generate({
+    required IOSink fileSink,
+  }) async {
     String correctedFieldName = name.clearSteamNaming().camelCase;
 
     String nativeType = type.toNativeType();
     String annotation = type.toNativeTypeAnnotation();
 
     fileSink.writeStructField(
-      correctedFieldName,
-      nativeType,
-      annotation,
+      fieldName: correctedFieldName,
+      fieldType: nativeType,
+      annotation: annotation,
       isPrivate: private,
     );
   }
@@ -43,28 +45,32 @@ extension SteamFieldExtensions on SteamField {
 
 /// Extensions on [Iterable<SteamField>] to generate ffi code
 extension SteamFieldIterableExtensions on Iterable<SteamField> {
-  Future<void> generateImport(
-    IOSink fileSink,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-    Set<String> interfaceSet,
-  ) async {
+  Future<void> generateImport({
+    required IOSink fileSink,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+    Set<String> interfaceSet = const {},
+  }) async {
     for (SteamField field in this) {
       await field.generateImport(
-        fileSink,
-        enumSet,
-        structSet,
-        callbackStructSet,
-        interfaceSet,
+        fileSink: fileSink,
+        enumSet: enumSet,
+        structSet: structSet,
+        callbackStructSet: callbackStructSet,
+        interfaceSet: interfaceSet,
       );
     }
   }
 
   /// Generates respective code for each [SteamField]
-  Future<void> generate(IOSink fileSink) async {
+  Future<void> generate({
+    required IOSink fileSink,
+  }) async {
     for (SteamField field in this) {
-      await field.generate(fileSink);
+      await field.generate(
+        fileSink: fileSink,
+      );
     }
   }
 }

@@ -6,11 +6,15 @@ import "../../steam/steam_api.dart";
 import "../../steam/steam_enum.dart";
 import "../../steam/steam_enum_value.dart";
 import "../../steam/steam_field.dart";
+import "../../steam/steam_initalizer.dart";
 import "../../steam/steam_interface.dart";
+import "../../steam/steam_method.dart";
+import "../../steam/steam_param.dart";
 import "../../steam/steam_struct.dart";
 import "../file_extensions.dart";
 import "steam_const_extensions.dart";
 import "steam_enum_extensions.dart";
+import "steam_initializer_extensions.dart";
 import "steam_interface_extensions.dart";
 import "steam_struct_extensions.dart";
 import "steam_typedef_extensions.dart";
@@ -92,100 +96,329 @@ extension SteamApiExtensions on SteamApi {
     Set<String> interfaceSet = interfaces.map((i) => i.name).toSet()
       ..addAll(missingInterfaces.map((i) => i.name));
 
-    await generateSteamCommonApi(path);
-    await consts.generateFile(
-      path,
-      FileMode.writeOnly,
+    await generateDl(
+      path: path,
     );
-    await typedefs.generate(path);
-    await enums.generate(path);
+    await generateSteamApi(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
+    await generateSteamGameServer(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
+    await generateDispatch(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
+    await consts.generateFile(
+      path: path,
+      fileMode: FileMode.writeOnly,
+    );
+    await typedefs.generate(
+      path: path,
+    );
+    await enums.generate(
+      path: path,
+    );
     await missingStructs.generate(
-      path,
-      target,
-      false,
-      enumSet,
-      structSet,
-      callbackStructSet,
+      path: path,
+      target: target,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
     await structs.generate(
-      path,
-      target,
-      false,
+      path: path,
+      target: target,
       // typedefSet,
-      enumSet,
-      structSet,
-      callbackStructSet,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
     await callbackStructs.generate(
-      path,
-      target,
-      true,
+      path: path,
+      target: target,
+      isCallback: true,
       // typedefSet,
-      enumSet,
-      structSet,
-      callbackStructSet,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
 
-    await callbackIdEnum.generateFile(path);
+    await callbackIdEnum.generateFile(
+      path: path,
+    );
 
     await missingInterfaces.generate(
-      path,
-      enumSet,
-      structSet,
-      callbackStructSet,
-      interfaceSet,
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+      interfaceSet: interfaceSet,
     );
     await interfaces.generate(
-      path,
-      enumSet,
-      structSet,
-      callbackStructSet,
-      interfaceSet,
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+      interfaceSet: interfaceSet,
     );
   }
 
-  /// Generates code for common steam apis
-  Future<void> generateSteamCommonApi(String path) async {
-    String filePath = p.join(path, "steam_api.dart");
+  /// Generates codes for accessing the library file
+  Future<void> generateDl({required String path}) async {
+    String filePath = p.join(path, "dl.dart");
     File file = File(filePath);
     await file.create(recursive: true);
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    fileSink.writeImport("dart:ffi");
-    fileSink.writeImport("dart:io");
-    fileSink.writeImport("typedefs.dart");
+    fileSink.writeImport(
+      packageName: "dart:ffi",
+    );
 
     fileSink.writeln(
       "DynamicLibrary dl = DynamicLibrary.open(\"C:/Repos/aeb-dev/steamworks/bin/steam_api64.dll\");\n",
     );
+  }
 
-    fileSink.writeln(
-      "final _init = dl.lookupFunction<Bool Function(), bool Function()>(\"SteamAPI_Init\");\n",
-    );
-    fileSink.writeln(
-      "final _manualDispatchInit = dl.lookupFunction<Void Function(), void Function()>(\"SteamAPI_ManualDispatch_Init\");\n",
-    );
-    fileSink.writeln(
-      "final _shutdown = dl.lookupFunction<Void Function(), void Function()>(\"SteamAPI_Shutdown\");\n",
-    );
-    fileSink.writeln(
-      "final _getHSteamPipe = dl.lookupFunction<Int32 Function(), HSteamPipe Function()>(\"SteamAPI_GetHSteamPipe\");\n",
-    );
-    fileSink.writeln(
-      "final _restartAppIfNecessary = dl.lookupFunction<Bool Function(Int32), bool Function(int)>(\"SteamAPI_RestartAppIfNecessary\");\n",
+  /// Generates code for common steam apis
+  Future<void> generateSteamApi({
+    required String path,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
+    SteamInitializer steamApi = SteamInitializer(
+      name: "SteamApi",
+      methods: [
+        SteamMethod(
+          name: "Init",
+          nameFlat: "SteamAPI_Init",
+          returnType: "bool",
+        ),
+        SteamMethod(
+          name: "ReleaseCurrentThreadMemory",
+          nameFlat: "SteamAPI_ReleaseCurrentThreadMemory",
+          returnType: "void",
+        ),
+        SteamMethod(
+          name: "RestartAppIfNecessary",
+          nameFlat: "SteamAPI_RestartAppIfNecessary",
+          returnType: "bool",
+          params: [
+            SteamParam(
+              name: "unOwnAppID",
+              type: "uint32",
+            ),
+          ],
+        ),
+        // SteamMethod(
+        //   name: "RunCallbacks",
+        //   nameFlat: "SteamAPI_RunCallbacks",
+        //   returnType: "void",
+        // ),
+        SteamMethod(
+          name: "Shutdown",
+          nameFlat: "SteamAPI_Shutdown",
+          returnType: "void",
+        ),
+        SteamMethod(
+          name: "GetHSteamPipe",
+          nameFlat: "SteamAPI_GetHSteamPipe",
+          returnType: "HSteamPipe",
+        ),
+        SteamMethod(
+          name: "GetHSteamUser",
+          nameFlat: "SteamAPI_GetHSteamUser",
+          returnType: "HSteamUser",
+        ),
+      ],
     );
 
-    fileSink.writeln("bool init() => _init.call();\n");
-    fileSink
-        .writeln("void manualDispatchInit() => _manualDispatchInit.call();\n");
-    fileSink.writeln("void shutdown() => _shutdown.call();\n");
-    fileSink.writeln("HSteamPipe getHSteamPipe() => _getHSteamPipe.call();\n");
-    fileSink.writeln(
-      "bool restartAppIfNecessary(int appId) => _restartAppIfNecessary.call(appId);\n",
+    await steamApi.generateFile(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
+  }
+
+  /// Generates code for steam game server
+  Future<void> generateSteamGameServer({
+    required String path,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
+    SteamInitializer gameServer = SteamInitializer(
+      name: "SteamGameServer",
+      methods: [
+        SteamMethod(
+          name: "Init",
+          nameFlat: "SteamGameServer_Init",
+          returnType: "bool",
+          params: [
+            SteamParam(
+              name: "unIP",
+              type: "uint32",
+            ),
+            SteamParam(
+              name: "usSteamPort",
+              type: "uint16",
+            ),
+            SteamParam(
+              name: "usGamePort",
+              type: "uint16",
+            ),
+            SteamParam(
+              name: "usQueryPort",
+              type: "uint16",
+            ),
+            SteamParam(
+              name: "eServerMode",
+              type: "EServerMode",
+            ),
+            SteamParam(
+              name: "pchVersionString",
+              type: "const char *",
+            ),
+          ],
+        ),
+        SteamMethod(
+          name: "ReleaseCurrentThreadMemory",
+          nameFlat: "SteamGameServer_ReleaseCurrentThreadMemory",
+          returnType: "void",
+        ),
+        // SteamMethod(
+        //   name: "RunCallbacks",
+        //   nameFlat: "SteamGameServer_RunCallbacks",
+        //   returnType: "void",
+        // ),
+        SteamMethod(
+          name: "Shutdown",
+          nameFlat: "SteamGameServer_Shutdown",
+          returnType: "void",
+        ),
+        SteamMethod(
+          name: "GetHSteamPipe",
+          nameFlat: "SteamGameServer_GetHSteamPipe",
+          returnType: "HSteamPipe",
+        ),
+        SteamMethod(
+          name: "GetHSteamUser",
+          nameFlat: "SteamGameServer_GetHSteamUser",
+          returnType: "HSteamUser",
+        ),
+      ],
     );
 
-    await fileSink.flush();
-    await fileSink.close();
+    await gameServer.generateFile(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
+  }
+
+  /// Generates code for dispatch
+  Future<void> generateDispatch({
+    required String path,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
+    SteamInitializer dispatch = SteamInitializer(
+      name: "Dispatch",
+      methods: [
+        SteamMethod(
+          name: "Init",
+          nameFlat: "SteamAPI_ManualDispatch_Init",
+          returnType: "void",
+        ),
+        SteamMethod(
+          name: "RunFrame",
+          nameFlat: "SteamAPI_ManualDispatch_RunFrame",
+          returnType: "void",
+          params: [
+            SteamParam(
+              name: "hSteamPipe",
+              type: "HSteamPipe",
+            ),
+          ],
+        ),
+        SteamMethod(
+          name: "GetNextCallback",
+          nameFlat: "SteamAPI_ManualDispatch_GetNextCallback",
+          returnType: "bool",
+          params: [
+            SteamParam(
+              name: "hSteamPipe",
+              type: "HSteamPipe",
+            ),
+            SteamParam(
+              name: "pCallbackMsg",
+              type: "CallbackMsg_t *",
+            ),
+          ],
+        ),
+        SteamMethod(
+          name: "FreeLastCallback",
+          nameFlat: "SteamAPI_ManualDispatch_FreeLastCallback",
+          returnType: "void",
+          params: [
+            SteamParam(
+              name: "hSteamPipe",
+              type: "HSteamPipe",
+            ),
+          ],
+        ),
+        SteamMethod(
+          name: "GetAPICallResult",
+          nameFlat: "SteamAPI_ManualDispatch_GetAPICallResult",
+          returnType: "bool",
+          params: [
+            SteamParam(
+              name: "hSteamPipe",
+              type: "HSteamPipe",
+            ),
+            SteamParam(
+              name: "hSteamAPICall",
+              type: "SteamAPICall_t",
+            ),
+            SteamParam(
+              name: "pCallback",
+              type: "void *",
+            ),
+            SteamParam(
+              name: "cubCallback",
+              type: "int",
+            ),
+            SteamParam(
+              name: "iCallbackExpected",
+              type: "int",
+            ),
+            SteamParam(
+              name: "pbFailed",
+              type: "bool *",
+            ),
+          ],
+        ),
+      ],
+    );
+
+    await dispatch.generateFile(
+      path: path,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
+    );
   }
 }

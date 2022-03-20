@@ -8,11 +8,11 @@ class SteamMethod {
   /// flat name of accessor in order to lookup symbol in the library
   late String nameFlat;
 
-  /// list of [SteamParam]s of the method
-  late List<SteamParam> params;
-
   /// c return type of the method
   late String returnType;
+
+  /// list of [SteamParam]s of the method
+  late List<SteamParam> params;
 
   /// flat return type of the method
   late String returnTypeFlat;
@@ -23,13 +23,27 @@ class SteamMethod {
   /// callback of the method in order to resolve the callback struct
   late String callback;
 
+  // TODO: callback, callResult, how can I use them in dispatcher, should I use them?
+
+  /// Creates a [SteamMethod]. This constructor is used
+  /// for manual [SteamMethod] creation
+  SteamMethod({
+    required this.name,
+    required this.nameFlat,
+    required this.returnType,
+    this.params = const [],
+    this.returnTypeFlat = "",
+    this.callResult = "",
+    this.callback = "",
+  });
+
   /// Creates a [SteamMethod] from json
   SteamMethod.fromJson(Map<String, dynamic> json) {
     name = json["methodname"];
     nameFlat = json["methodname_flat"];
+    returnType = json["returntype"];
     params =
         json["params"].map<SteamParam>((v) => SteamParam.fromJson(v)).toList();
-    returnType = json["returntype"];
     returnTypeFlat = json["returntype_flat"] ?? "";
     callResult = json["callresult"] ?? "";
     callback = json["callback"] ?? "";

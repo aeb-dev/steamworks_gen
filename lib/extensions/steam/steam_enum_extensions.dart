@@ -11,7 +11,9 @@ import "steam_enum_value_extensions.dart";
 /// Extensions on [SteamEnum] to generate ffi code
 extension SteamEnumExtensions on SteamEnum {
   /// Generates necessary code for a [SteamEnum]
-  Future<void> generate(IOSink fileSink) async {
+  Future<void> generate({
+    required IOSink fileSink,
+  }) async {
     values.sort((a, b) => a.value.compareTo(b.value));
 
     String firstKey = values.first.name;
@@ -30,20 +32,32 @@ extension SteamEnumExtensions on SteamEnum {
 
     String correctedName = name.clearSteamNaming();
 
-    fileSink.writeTypedef(correctedName, "int");
+    fileSink.writeTypedef(
+      alias: correctedName,
+      of: "int",
+    );
 
-    fileSink.writeEnum("${correctedName}Enum");
+    fileSink.writeEnum(
+      enumName: "${correctedName}Enum",
+    );
     fileSink.writeStartBlock();
 
     for (SteamEnumValue enumValue
         in values.where((val) => !val.name.contains("Force32Bit"))) {
-      await enumValue.generate(fileSink, correctedName, indexOfCommonPartEnd);
+      await enumValue.generate(
+        fileSink: fileSink,
+        enumName: correctedName,
+        nameIndex: indexOfCommonPartEnd,
+      );
     }
 
     fileSink.writeEndBlock();
   }
 
-  Future<void> generateFile(String path) async {
+  /// Creates a file for each [SteamEnum] and generates respective code
+  Future<void> generateFile({
+    required String path,
+  }) async {
     String fileName = name.toFileName();
 
     // TODO create enum without E. There is a struct that has the same name
@@ -55,7 +69,9 @@ extension SteamEnumExtensions on SteamEnum {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    await generate(fileSink);
+    await generate(
+      fileSink: fileSink,
+    );
 
     await fileSink.flush();
     await fileSink.close();
@@ -65,9 +81,13 @@ extension SteamEnumExtensions on SteamEnum {
 /// Extensions on [Iterable<SteamEnum>] to generate ffi code
 extension SteamEnumIterableExtensions on Iterable<SteamEnum> {
   /// Creates a file for each [SteamEnum] and generates respective code
-  Future<void> generate(String path) async {
+  Future<void> generate({
+    required String path,
+  }) async {
     for (SteamEnum steamEnum in this) {
-      await steamEnum.generateFile(path);
+      await steamEnum.generateFile(
+        path: path,
+      );
     }
   }
 }

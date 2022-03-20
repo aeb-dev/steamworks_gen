@@ -6,6 +6,8 @@ class SteamEnumValue {
   /// value of the enum value
   late int value;
 
+  /// Creates a [SteamEnumValue]. This constructor is used
+  /// for manual [SteamEnumValue] creation
   SteamEnumValue({
     required this.name,
     required this.value,

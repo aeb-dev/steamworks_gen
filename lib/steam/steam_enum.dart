@@ -11,6 +11,8 @@ class SteamEnum {
   /// List of values that enum holds
   late List<SteamEnumValue> values;
 
+  /// Creates a [SteamEnum]. This constructor is used
+  /// for manual [SteamEnum] creation
   SteamEnum({
     required this.name,
     this.fqName = "",

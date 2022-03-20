@@ -23,8 +23,8 @@ class SteamInterface {
   /// list of [SteamEnum]s of the interface
   late List<SteamEnum> enums;
 
-  /// Creates a [SteamInterface]. This constructor is used
-  /// for the types that are missing from the steam_api.json file
+  /// Creates a [SteamInterface]. This constructor is used for the
+  /// create of types that are missing from the steam_api.json file
   SteamInterface({
     required this.name,
     this.versionString = "",

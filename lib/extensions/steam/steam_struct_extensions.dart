@@ -14,62 +14,74 @@ import "steam_method_extensions.dart";
 /// Extensions on [SteamStruct] to generate ffi code
 extension SteamStructExtensions on SteamStruct {
   /// Generates necessary code for a [SteamStruct]
-  Future<void> generate(
-    IOSink fileSink,
-    String target,
-    // bool isCallback,
-    // Set<String> typedefSet,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-  ) async {
-    fileSink.writeImport("dart:ffi");
-    fileSink.writeImport("package:ffi/ffi.dart");
+  Future<void> generate({
+    required IOSink fileSink,
+    required String target,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
+    fileSink.writeImport(packageName: "dart:ffi");
+    fileSink.writeImport(packageName: "package:ffi/ffi.dart");
 
     String correctedName = name.clearSteamNaming();
 
     await fields.generateImport(
-      fileSink,
-      enumSet,
-      structSet,
-      callbackStructSet,
-      {},
+      fileSink: fileSink,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
 
     await methods.generateImport(
-      fileSink,
-      enumSet,
-      structSet,
-      callbackStructSet,
-      {},
+      fileSink: fileSink,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
 
-    fileSink.writeImport("../steam_api.dart");
-    fileSink.writeImport("../typedefs.dart");
+    fileSink.writeImport(
+      packageName: "../dl.dart",
+    );
+    fileSink.writeImport(
+      packageName: "../typedefs.dart",
+    );
 
-    fileSink.write("@Packed(${_getAlignment(target)})");
+    fileSink.write("@Packed(${_getAlignment(target: target)})");
     fileSink.writeClass(
-      correctedName.pascalCase,
-      fields.isNotEmpty ? "Struct" : "Opaque",
+      className: correctedName.pascalCase,
+      extend: fields.isNotEmpty ? "Struct" : "Opaque",
     );
     fileSink.writeStartBlock();
 
-    await consts.generate(fileSink, true);
+    await consts.generate(
+      fileSink: fileSink,
+      isStatic: true,
+    );
 
-    await fields.generate(fileSink);
+    await fields.generate(
+      fileSink: fileSink,
+    );
 
     fileSink.writeEndBlock();
 
     if (methods.isNotEmpty) {
-      await methods.generateLookup(fileSink, correctedName);
+      await methods.generateLookup(
+        fileSink: fileSink,
+        owner: correctedName,
+      );
 
       fileSink.writeExtension(
-        "${correctedName}Extensions",
-        "Pointer<$correctedName>",
+        extensionName: "${correctedName}Extensions",
+        on: "Pointer<$correctedName>",
       );
+
       fileSink.writeStartBlock();
 
-      await methods.generate(fileSink, correctedName);
+      await methods.generate(
+        fileSink: fileSink,
+        owner: correctedName,
+      );
 
       fileSink.writeEndBlock();
     }
@@ -78,17 +90,18 @@ extension SteamStructExtensions on SteamStruct {
     await fileSink.close();
   }
 
-  /// Generates necessary code for a [SteamStruct]
-  Future<void> generateFile(
-    String path,
-    String target,
-    bool isCallback,
-    // Set<String> typedefSet,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-  ) async {
-    await enums.generate(path);
+  /// Generates necessary file and code for a [SteamStruct]
+  Future<void> generateFile({
+    required String path,
+    required String target,
+    bool isCallback = false,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
+    await enums.generate(
+      path: path,
+    );
 
     String filePath;
     String fileName = name.toFileName();
@@ -103,13 +116,11 @@ extension SteamStructExtensions on SteamStruct {
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
     await generate(
-      fileSink,
-      target,
-      // isCallback,
-      // typedefSet,
-      enumSet,
-      structSet,
-      callbackStructSet,
+      fileSink: fileSink,
+      target: target,
+      enumSet: enumSet,
+      structSet: structSet,
+      callbackStructSet: callbackStructSet,
     );
 
     await fileSink.flush();
@@ -117,7 +128,10 @@ extension SteamStructExtensions on SteamStruct {
   }
 
   // TODO: ambigious values on steam_sdk, learn more about pragma
-  int _getAlignment(String target) {
+  // see https://github.com/dart-lang/sdk/issues/46644
+  int _getAlignment({
+    required String target,
+  }) {
     switch (name) {
       // isteamapplist
       case "SteamAppInstalled_t":
@@ -398,8 +412,9 @@ extension SteamStructExtensions on SteamStruct {
       case "SteamNetConnectionInfo_t":
       case "SteamNetConnectionRealTimeStatus_t":
       case "SteamNetConnectionRealTimeLaneStatus_t":
-
-        return _steamPackSize(target);
+        return _steamPackSize(
+          target: target,
+        );
 
       // isteamcontroller
       case "ControllerAnalogActionData_t":
@@ -425,14 +440,15 @@ extension SteamStructExtensions on SteamStruct {
 
       // steamtypes
       case "SteamIPAddress_t":
-
         return 1;
       default:
         return 4;
     }
   }
 
-  int _steamPackSize(String target) {
+  int _steamPackSize({
+    required String target,
+  }) {
     if (target == "win") {
       return 8;
     } else if (target == "linux" || target == "mac") {
@@ -446,23 +462,22 @@ extension SteamStructExtensions on SteamStruct {
 /// Extensions on [Iterable<SteamStruct>] to generate ffi code
 extension SteamStructIterableExtensions on Iterable<SteamStruct> {
   /// Creates a file for each [SteamStruct] and generates respective code
-  Future<void> generate(
-    String path,
-    String target,
-    bool isCallback,
-    // Set<String> typedefSet,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-  ) async {
+  Future<void> generate({
+    required String path,
+    required String target,
+    bool isCallback = false,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+  }) async {
     for (SteamStruct struct in this) {
       await struct.generateFile(
-        path,
-        target,
-        isCallback,
-        enumSet,
-        structSet,
-        callbackStructSet,
+        path: path,
+        target: target,
+        isCallback: isCallback,
+        enumSet: enumSet,
+        structSet: structSet,
+        callbackStructSet: callbackStructSet,
       );
     }
   }

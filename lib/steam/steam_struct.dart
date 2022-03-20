@@ -8,6 +8,7 @@ class SteamStruct {
   /// callback id of the callback struct, if it is not
   /// a callback struct this is filled with -1
   late int callbackId;
+
   /// list of [SteamField]s of the struct
   late List<SteamField> fields;
 

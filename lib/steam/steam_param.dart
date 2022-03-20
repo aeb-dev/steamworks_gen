@@ -19,6 +19,14 @@ class SteamParam {
   // late String outBufferCount;
   // late String bufferCount;
 
+  /// Creates a [SteamParam]. This constructor is used
+  /// for manual [SteamParam] creation
+  SteamParam({
+    required this.name,
+    required this.type,
+    this.typeFlat = "",
+  });
+
   /// Creates a [SteamParam] from json
   SteamParam.fromJson(Map<String, dynamic> json) {
     name = json["paramname"];

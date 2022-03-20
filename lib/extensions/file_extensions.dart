@@ -5,9 +5,12 @@ import "string_extensions.dart";
 /// Extensions for generating dart class with ease
 extension FileExtensions on IOSink {
   /// writes import in a dart file
-  void writeImport(String packageName, [String? asName]) {
+  void writeImport({
+    required String packageName,
+    String asName = "",
+  }) {
     write("import \"$packageName\"");
-    if (asName != null) {
+    if (asName.isNotEmpty) {
       write(" as $asName");
     }
     write(";");
@@ -24,9 +27,12 @@ extension FileExtensions on IOSink {
   }
 
   /// writes a class declaration
-  void writeClass(String className, [String? extend]) {
+  void writeClass({
+    required String className,
+    String extend = "",
+  }) {
     write("class $className");
-    if (extend != null) {
+    if (extend.isNotEmpty) {
       write(" extends $extend");
     }
   }
@@ -36,15 +42,19 @@ extension FileExtensions on IOSink {
   /// and since steam has jump between enum values
   /// we create a class until dart adds assigning values to enums
   /// write("enum $enumName");
-  void writeEnum(String enumName) {
-    writeClass(enumName);
+  void writeEnum({
+    required String enumName,
+  }) {
+    writeClass(
+      className: enumName,
+    );
   }
 
   /// writes a field of a struct
-  void writeStructField(
-    String fieldName,
-    String fieldType,
-    String annotation, {
+  void writeStructField({
+    required String fieldName,
+    required String fieldType,
+    String annotation = "",
     bool isPrivate = false,
   }) {
     if (annotation.isNotEmpty) {
@@ -60,12 +70,20 @@ extension FileExtensions on IOSink {
   }
 
   /// writes a typedef
-  void writeTypedef(String alias, String of) {
+  void writeTypedef({
+    required String alias,
+    required String of,
+  }) {
     write("typedef $alias = $of;");
   }
 
   /// writes a constant
-  void writeConst(String type, String name, String value, bool isStatic) {
+  void writeConst({
+    required String type,
+    required String name,
+    required String value,
+    bool isStatic = false,
+  }) {
     if (isStatic) {
       write("static ");
     }
@@ -73,7 +91,10 @@ extension FileExtensions on IOSink {
   }
 
   /// writes an extension class
-  void writeExtension(String extensionName, String on) {
+  void writeExtension({
+    String extensionName = "",
+    required String on,
+  }) {
     write("extension ");
     if (extensionName.isNotEmpty) {
       write("$extensionName ");
@@ -83,35 +104,42 @@ extension FileExtensions on IOSink {
   }
 
   /// writes import according its type
-  void importType(
-    String type,
-    Set<String> enumSet,
-    Set<String> structSet,
-    Set<String> callbackStructSet,
-    Set<String> interfaceSet,
-  ) {
+  void importType({
+    required String type,
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+    Set<String> interfaceSet = const {},
+  }) {
     bool isEnum = enumSet.contains(type);
     if (isEnum) {
-      writeImport("../enums/${type.toFileName()}.dart");
+      writeImport(
+        packageName: "../enums/${type.toFileName()}.dart",
+      );
       return;
     }
 
     bool isStruct = structSet.contains(type);
     if (isStruct) {
-      writeImport("../structs/${type.toFileName()}.dart");
+      writeImport(
+        packageName: "../structs/${type.toFileName()}.dart",
+      );
       return;
     }
 
     bool iscallbackStruct = callbackStructSet.contains(type);
     if (iscallbackStruct) {
-      writeImport("../callback_structs/${type.toFileName()}.dart");
+      writeImport(
+        packageName: "../callback_structs/${type.toFileName()}.dart",
+      );
       return;
     }
 
     bool isInterface = interfaceSet.contains(type);
     if (isInterface) {
       writeImport(
-        "../interfaces/${type.clearInterfaceName().toFileName()}.dart",
+        packageName:
+            "../interfaces/${type.clearInterfaceName().toFileName()}.dart",
       );
       return;
     }

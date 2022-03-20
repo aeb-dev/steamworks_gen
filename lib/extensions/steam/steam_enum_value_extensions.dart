@@ -8,7 +8,11 @@ import "../string_extensions.dart";
 /// Extensions on [SteamEnumValue] to generate ffi code
 extension SteamEnumValueExtensions on SteamEnumValue {
   /// Generates necessary code for a [SteamEnumValue]
-  Future<void> generate(IOSink fileSink, String enumName, int nameIndex) async {
+  Future<void> generate({
+    required IOSink fileSink,
+    required String enumName,
+    required int nameIndex,
+  }) async {
     String valueName = name.substring(nameIndex).clearSteamNaming();
     int? valueAsInt = int.tryParse(valueName[0]);
     if (valueAsInt != null) {

@@ -10,7 +10,7 @@ class SteamField {
   late bool private;
 
   /// Creates a [SteamField]. This constructor is used
-  /// for the types that are missing from the steam_api.json file
+  /// for manual [SteamField] creation
   SteamField({
     required this.name,
     required this.type,
