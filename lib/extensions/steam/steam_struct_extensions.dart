@@ -54,9 +54,13 @@ extension SteamStructExtensions on SteamStruct {
     );
     fileSink.writeStartBlock();
 
+    // write callback id before everything
+    if (callbackId != -1) {
+      fileSink.writeln("static int get callbackId => $callbackId;\n");
+    }
+
     await consts.generate(
       fileSink: fileSink,
-      isStatic: true,
     );
 
     await fields.generate(
@@ -65,7 +69,7 @@ extension SteamStructExtensions on SteamStruct {
 
     fileSink.writeEndBlock();
 
-    if (methods.isNotEmpty) {
+    if (methods.isNotEmpty || fields.isNotEmpty) {
       await methods.generateLookup(
         fileSink: fileSink,
         owner: correctedName,
@@ -83,6 +87,10 @@ extension SteamStructExtensions on SteamStruct {
         owner: correctedName,
       );
 
+      await fields.generateFieldAccess(
+        fileSink: fileSink,
+      );
+
       fileSink.writeEndBlock();
     }
 
@@ -94,7 +102,6 @@ extension SteamStructExtensions on SteamStruct {
   Future<void> generateFile({
     required String path,
     required String target,
-    bool isCallback = false,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -105,7 +112,7 @@ extension SteamStructExtensions on SteamStruct {
 
     String filePath;
     String fileName = name.toFileName();
-    if (isCallback) {
+    if (callbackId != -1) {
       filePath = p.join(path, "callback_structs", "$fileName.dart");
     } else {
       filePath = p.join(path, "structs", "$fileName.dart");
@@ -465,7 +472,6 @@ extension SteamStructIterableExtensions on Iterable<SteamStruct> {
   Future<void> generate({
     required String path,
     required String target,
-    bool isCallback = false,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -474,7 +480,6 @@ extension SteamStructIterableExtensions on Iterable<SteamStruct> {
       await struct.generateFile(
         path: path,
         target: target,
-        isCallback: isCallback,
         enumSet: enumSet,
         structSet: structSet,
         callbackStructSet: callbackStructSet,

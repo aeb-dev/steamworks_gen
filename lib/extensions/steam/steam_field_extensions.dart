@@ -41,6 +41,16 @@ extension SteamFieldExtensions on SteamField {
       isPrivate: private,
     );
   }
+
+  Future<void> generateFieldAccess({
+    required IOSink fileSink,
+  }) async {
+    String correctedFieldName = name.clearSteamNaming().camelCase;
+
+    fileSink.writeln(
+      "${type.toNativeType()} get $correctedFieldName => ref.$correctedFieldName;\n",
+    );
+  }
 }
 
 /// Extensions on [Iterable<SteamField>] to generate ffi code
@@ -69,6 +79,16 @@ extension SteamFieldIterableExtensions on Iterable<SteamField> {
   }) async {
     for (SteamField field in this) {
       await field.generate(
+        fileSink: fileSink,
+      );
+    }
+  }
+
+  Future<void> generateFieldAccess({
+    required IOSink fileSink,
+  }) async {
+    for (SteamField field in where((f) => !f.private)) {
+      await field.generateFieldAccess(
         fileSink: fileSink,
       );
     }

@@ -82,12 +82,9 @@ extension FileExtensions on IOSink {
     required String type,
     required String name,
     required String value,
-    bool isStatic = false,
   }) {
-    if (isStatic) {
-      write("static ");
-    }
-    write("const $type $name = $value;");
+    // static const field is not supported inside structs
+    write("static $type get $name => $value;");
   }
 
   /// writes an extension class
@@ -106,6 +103,7 @@ extension FileExtensions on IOSink {
   /// writes import according its type
   void importType({
     required String type,
+    String relativeness = "../",
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -114,7 +112,7 @@ extension FileExtensions on IOSink {
     bool isEnum = enumSet.contains(type);
     if (isEnum) {
       writeImport(
-        packageName: "../enums/${type.toFileName()}.dart",
+        packageName: "${relativeness}enums/${type.toFileName()}.dart",
       );
       return;
     }
@@ -122,7 +120,7 @@ extension FileExtensions on IOSink {
     bool isStruct = structSet.contains(type);
     if (isStruct) {
       writeImport(
-        packageName: "../structs/${type.toFileName()}.dart",
+        packageName: "${relativeness}structs/${type.toFileName()}.dart",
       );
       return;
     }
@@ -130,7 +128,8 @@ extension FileExtensions on IOSink {
     bool iscallbackStruct = callbackStructSet.contains(type);
     if (iscallbackStruct) {
       writeImport(
-        packageName: "../callback_structs/${type.toFileName()}.dart",
+        packageName:
+            "${relativeness}callback_structs/${type.toFileName()}.dart",
       );
       return;
     }
@@ -139,7 +138,7 @@ extension FileExtensions on IOSink {
     if (isInterface) {
       writeImport(
         packageName:
-            "../interfaces/${type.clearInterfaceName().toFileName()}.dart",
+            "${relativeness}interfaces/${type.clearInterfaceName().toFileName()}.dart",
       );
       return;
     }

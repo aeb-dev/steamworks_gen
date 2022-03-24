@@ -12,7 +12,6 @@ extension SteamConstExtensions on SteamConst {
   /// Generates necessary code for a [SteamConst]
   Future<void> generate({
     required IOSink fileSink,
-    bool isStatic = false,
   }) async {
     String correctedName = name.clearSteamNaming().afterFirstCapital();
     String correctedType = type.toDartType();
@@ -39,7 +38,6 @@ extension SteamConstExtensions on SteamConst {
       type: correctedType,
       name: correctedName.camelCase,
       value: correctedValue.camelCase,
-      isStatic: isStatic,
     );
   }
 }
@@ -51,7 +49,7 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
     required String path,
     required FileMode fileMode,
   }) async {
-    String filePath = p.join(path, "constants.dart");
+    String filePath = p.join(path, "steam_constants.dart");
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -63,10 +61,17 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
       );
     }
 
+    fileSink.writeClass(
+      className: "SteamConstants",
+    );
+
+    fileSink.writeStartBlock();
+
     await generate(
       fileSink: fileSink,
-      isStatic: false,
     );
+
+    fileSink.writeEndBlock();
 
     await fileSink.flush();
     await fileSink.close();
@@ -75,12 +80,10 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
   /// Generates respective file and code for each [SteamConst]
   Future<void> generate({
     required IOSink fileSink,
-    bool isStatic = false,
   }) async {
     for (SteamConst steamConst in this) {
       await steamConst.generate(
         fileSink: fileSink,
-        isStatic: isStatic,
       );
     }
   }

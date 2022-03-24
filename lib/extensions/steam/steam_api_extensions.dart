@@ -1,10 +1,9 @@
 import "dart:io";
 
 import "package:path/path.dart" as p;
+import "package:recase/recase.dart";
 
 import "../../steam/steam_api.dart";
-import "../../steam/steam_enum.dart";
-import "../../steam/steam_enum_value.dart";
 import "../../steam/steam_field.dart";
 import "../../steam/steam_initalizer.dart";
 import "../../steam/steam_interface.dart";
@@ -12,6 +11,7 @@ import "../../steam/steam_method.dart";
 import "../../steam/steam_param.dart";
 import "../../steam/steam_struct.dart";
 import "../file_extensions.dart";
+import "../string_extensions.dart";
 import "steam_const_extensions.dart";
 import "steam_enum_extensions.dart";
 import "steam_initializer_extensions.dart";
@@ -67,19 +67,6 @@ extension SteamApiExtensions on SteamApi {
       SteamInterface(name: "ISteamNetworkingSignalingRecvContext"),
     ];
 
-    SteamEnum callbackIdEnum = SteamEnum(
-      name: "CallbackId",
-      values: callbackStructs
-          .where((struct) => struct.callbackId != -1)
-          .map(
-            (struct) => SteamEnumValue(
-              name: struct.name,
-              value: struct.callbackId,
-            ),
-          )
-          .toList(growable: false),
-    );
-
     // Set<String> typedefSet = typedefs.map((t) => t.typedef).toSet();
 
     Set<String> enumSet = enums.map((e) => e.name).toSet();
@@ -95,6 +82,11 @@ extension SteamApiExtensions on SteamApi {
 
     Set<String> interfaceSet = interfaces.map((i) => i.name).toSet()
       ..addAll(missingInterfaces.map((i) => i.name));
+
+    await generateCallbackIdMap(
+      path: path,
+      callbackStructSet: callbackStructSet,
+    );
 
     await generateDl(
       path: path,
@@ -145,15 +137,10 @@ extension SteamApiExtensions on SteamApi {
     await callbackStructs.generate(
       path: path,
       target: target,
-      isCallback: true,
       // typedefSet,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
-    );
-
-    await callbackIdEnum.generateFile(
-      path: path,
     );
 
     await missingInterfaces.generate(
@@ -172,7 +159,7 @@ extension SteamApiExtensions on SteamApi {
     );
   }
 
-  /// Generates codes for accessing the library file
+  /// Generates code for accessing the library file
   Future<void> generateDl({required String path}) async {
     String filePath = p.join(path, "dl.dart");
     File file = File(filePath);
@@ -187,6 +174,40 @@ extension SteamApiExtensions on SteamApi {
     fileSink.writeln(
       "DynamicLibrary dl = DynamicLibrary.open(\"C:/Repos/aeb-dev/steamworks/bin/steam_api64.dll\");\n",
     );
+  }
+
+  Future<void> generateCallbackIdMap({
+    required String path,
+    Set<String> callbackStructSet = const {},
+  }) async {
+    String filePath = p.join(path, "callback_id_map.dart");
+    File file = File(filePath);
+    await file.create(recursive: true);
+
+    IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+
+    for (String name in callbackStructs.map((cs) => cs.name)) {
+      fileSink.importType(
+        type: name,
+        relativeness: "",
+        callbackStructSet: callbackStructSet,
+      );
+    }
+
+    fileSink.write(
+      "Map<Type, int> callbackIdMapByType =",
+    );
+
+    fileSink.writeStartBlock();
+
+    for (String name in callbackStructs.map((cs) => cs.name)) {
+      String typeName = name.clearSteamNaming().pascalCase;
+      fileSink.write("$typeName: $typeName.callbackId,");
+    }
+
+    fileSink.writeEndBlock();
+
+    fileSink.write(";");
   }
 
   /// Generates code for common steam apis
