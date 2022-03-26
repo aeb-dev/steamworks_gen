@@ -23,8 +23,6 @@ class SteamMethod {
   /// callback of the method in order to resolve the callback struct
   late String callback;
 
-  // TODO: callback, callResult, how can I use them in dispatcher, should I use them?
-
   /// Creates a [SteamMethod]. This constructor is used
   /// for manual [SteamMethod] creation
   SteamMethod({

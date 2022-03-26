@@ -134,8 +134,6 @@ extension SteamStructExtensions on SteamStruct {
     await fileSink.close();
   }
 
-  // TODO: ambigious values on steam_sdk, learn more about pragma
-  // see https://github.com/dart-lang/sdk/issues/46644
   int _getAlignment({
     required String target,
   }) {
@@ -417,6 +415,9 @@ extension SteamStructExtensions on SteamStruct {
       case "SteamDatagramGameCoordinatorServerLogin":
       case "SteamRelayNetworkStatus_t":
       case "SteamNetConnectionInfo_t":
+      // TODO: delete below when the following is resolved: https://github.com/dart-lang/sdk/issues/46644
+      // and uncomment the related case below for packed 1
+      case "SteamNetworkingMessagesSessionFailed_t":
       case "SteamNetConnectionRealTimeStatus_t":
       case "SteamNetConnectionRealTimeLaneStatus_t":
         return _steamPackSize(
@@ -433,11 +434,11 @@ extension SteamStructExtensions on SteamStruct {
       case "InputDigitalActionData_t":
       case "InputMotionData_t":
       case "SteamInputActionEvent_t":
-      case "AnalogAction":
+      case "AnalogAction_t":
 
       // isteamnetworkingmessages
       case "SteamNetworkingMessagesSessionRequest_t":
-      case "SteamNetworkingMessagesSessionFailed_t":
+      // case "SteamNetworkingMessagesSessionFailed_t":
 
       // steamclientpublic ?
 
