@@ -30,7 +30,7 @@ extension SteamEnumExtensions on SteamEnum {
       }
     }
 
-    String correctedName = name.clearSteamNaming();
+    String correctedName = name.clearEnumName().clearSteamNaming();
 
     fileSink.writeTypedef(
       alias: correctedName,
@@ -54,15 +54,12 @@ extension SteamEnumExtensions on SteamEnum {
     fileSink.writeEndBlock();
   }
 
-  /// Creates a file for each [SteamEnum] and generates respective code
+  /// Creates a file for the [SteamEnum] and generates respective code
   Future<void> generateFile({
     required String path,
   }) async {
-    String fileName = name.toFileName();
+    String fileName = name.clearEnumName().toFileName();
 
-    // TODO create enum without E. There is a struct that has the same name
-    // when is E is subtracted, need to find a way to solve the conflict
-    // before doing this
     String filePath = p.join(path, "enums", "$fileName.dart");
     File file = File(filePath);
     await file.create(recursive: true);

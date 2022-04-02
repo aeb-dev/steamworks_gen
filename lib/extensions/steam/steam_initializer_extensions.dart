@@ -24,8 +24,6 @@ extension SteamInitializerExtensions on SteamInitializer {
       packageName: "package:ffi/ffi.dart",
     );
 
-    String correctedName = name.clearSteamNaming();
-
     await methods.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
@@ -40,6 +38,8 @@ extension SteamInitializerExtensions on SteamInitializer {
       packageName: "../typedefs.dart",
     );
 
+    String correctedName = name.clearSteamNaming().pascalCase;
+
     await methods.generateLookup(
       fileSink: fileSink,
       owner: correctedName,
@@ -47,7 +47,7 @@ extension SteamInitializerExtensions on SteamInitializer {
     );
 
     fileSink.writeClass(
-      className: correctedName.pascalCase,
+      className: correctedName,
     );
     fileSink.writeStartBlock();
 
@@ -63,7 +63,7 @@ extension SteamInitializerExtensions on SteamInitializer {
     await fileSink.close();
   }
 
-  /// Generates necessary code for a [SteamInitializer]
+  /// Generates necessary file and code for a [SteamInitializer]
   Future<void> generateFile({
     required String path,
     // Set<String> typedefSet,

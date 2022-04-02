@@ -30,5 +30,8 @@ Future<void> generate(
   Map<String, dynamic> json = jsonDecode(jsonContent);
   SteamApi steamApi = SteamApi.fromJson(json);
 
-  await steamApi.generate(outputPath, target);
+  await steamApi.generate(
+    path: outputPath,
+    target: target,
+  );
 }

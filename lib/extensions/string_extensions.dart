@@ -264,6 +264,13 @@ extension StringExtensions on String {
 
   /// clears prefix E from enums
   String clearEnumName() {
+    // It is hard solve enum name conflict for the
+    // types below, so we just skip them
+    if (this == "ESteamNetworkingConfigValue" ||
+        this == "ECheckFileSignature") {
+      return this;
+    }
+
     if (this[0] == "E" || this[0] == "e") {
       return substring(1);
     }
@@ -697,12 +704,11 @@ extension StringExtensions on String {
       // enums, typedefs, structs
       default:
         break;
-
-      // return clearSteamNaming().clearEnumName();
-      // return type.clearSteamNaming();
     }
 
-    return type.clearSteamNaming();
+    type = type.clearEnumName().clearSteamNaming();
+
+    return type;
   }
 
   /// convert a steam type to a string that is usable for
@@ -1161,10 +1167,11 @@ extension StringExtensions on String {
 
       default:
         break;
-      // return type.clearSteamNaming();
     }
 
-    return type.clearSteamNaming();
+    type = type.clearSteamNaming();
+
+    return type;
   }
 
   /// convert a steam type to a string that is usable for
@@ -1754,7 +1761,9 @@ extension StringExtensions on String {
       // return type.clearSteamNaming();
     }
 
-    return type.clearSteamNaming();
+    type = type.clearSteamNaming();
+
+    return type;
   }
 
   /// appends a underscore to a cleaned steam keyword if
@@ -1767,5 +1776,31 @@ extension StringExtensions on String {
     }
 
     return newString;
+  }
+
+  /// returns the path of type in order to import
+  String importPath({
+    String relativeness = "../",
+    Set<String> enumSet = const {},
+    Set<String> structSet = const {},
+    Set<String> callbackStructSet = const {},
+    Set<String> interfaceSet = const {},
+  }) {
+    String packageName;
+    if (enumSet.contains(this)) {
+      packageName =
+          "${relativeness}enums/${this.clearEnumName().toFileName()}.dart";
+    } else if (structSet.contains(this)) {
+      packageName = "${relativeness}structs/${this.toFileName()}.dart";
+    } else if (callbackStructSet.contains(this)) {
+      packageName = "${relativeness}callback_structs/${this.toFileName()}.dart";
+    } else if (interfaceSet.contains(this)) {
+      packageName =
+          "${relativeness}interfaces/${this.clearInterfaceName().toFileName()}.dart";
+    } else {
+      packageName = "";
+    }
+
+    return packageName;
   }
 }

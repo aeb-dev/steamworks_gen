@@ -45,7 +45,8 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
     "FSteamNetworkingSocketsDebugOutput",
   };
 
-  /// Creates the typedef file and appends the generated code of each [SteamTypedef]
+  /// Generates code for each [SteamTypedef] in
+  /// a single file (typedefs.dart)
   Future<void> generate({
     required String path,
   }) async {

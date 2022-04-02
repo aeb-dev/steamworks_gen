@@ -8,6 +8,7 @@ import "../string_extensions.dart";
 
 /// Extensions on [SteamParam] to generate ffi code
 extension SteamFieldExtensions on SteamParam {
+  /// Generates necessary imports for a [SteamParam]
   Future<void> generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
@@ -15,18 +16,18 @@ extension SteamFieldExtensions on SteamParam {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) async {
-    String checkType = type.clearClassAccess().clearPointerOrConst().trim();
+    String importPath =
+        type.clearClassAccess().clearPointerOrConst().trim().importPath(
+              enumSet: enumSet,
+              structSet: structSet,
+              callbackStructSet: callbackStructSet,
+              interfaceSet: interfaceSet,
+            );
 
-    fileSink.importType(
-      type: checkType,
-      enumSet: enumSet,
-      structSet: structSet,
-      callbackStructSet: callbackStructSet,
-      interfaceSet: interfaceSet,
-    );
+    fileSink.writeImport(packageName: importPath);
   }
 
-  /// /// Generates necessary code for a [SteamParam]
+  /// Generates necessary code for a [SteamParam]
   Future<void> generate({
     required IOSink fileSink,
     bool withType = false,
@@ -51,6 +52,7 @@ extension SteamFieldExtensions on SteamParam {
 
 /// Extensions on [Iterable<SteamParam>] to generate ffi code
 extension SteamParamIterableExtensions on Iterable<SteamParam> {
+  /// Generates respective imports for each [SteamParam]
   Future<void> generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
@@ -69,6 +71,7 @@ extension SteamParamIterableExtensions on Iterable<SteamParam> {
     }
   }
 
+  /// Generates respective code for each [SteamParam]
   Future<void> generate({
     required IOSink fileSink,
     bool withType = false,

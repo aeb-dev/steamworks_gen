@@ -49,7 +49,7 @@ extension SteamInterfaceExtensions on SteamInterface {
       interfaceSet: interfaceSet,
     );
 
-    String correctedName = name.clearSteamNaming().clearInterfaceName();
+    String correctedName = name.clearInterfaceName().clearSteamNaming();
 
     await accessors.generateLookup(
       fileSink: fileSink,
@@ -94,6 +94,7 @@ extension SteamInterfaceExtensions on SteamInterface {
     }
   }
 
+  /// Generates necessary file and code for a [SteamInterface]
   Future<void> generateFile({
     required String path,
     Set<String> enumSet = const {},

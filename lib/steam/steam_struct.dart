@@ -25,7 +25,7 @@ class SteamStruct {
   late List<SteamConst> consts;
 
   /// Creates a [SteamStruct]. This constructor is used
-  /// for the types that are missing from the steam_api.json file
+  /// for manual [SteamStruct] creation
   SteamStruct({
     required this.name,
     this.callbackId = -1,

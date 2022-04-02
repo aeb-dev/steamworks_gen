@@ -24,6 +24,7 @@ extension SteamMethodExtensions on SteamMethod {
   bool _shouldCreate() => !(_ignoreList.contains(name) ||
       nameFlat.contains(RegExp(r"(deprecated|DEPRECATED|Deprecated)")));
 
+  /// Generates necessary import for a [SteamMethod]
   Future<void> generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
@@ -31,16 +32,15 @@ extension SteamMethodExtensions on SteamMethod {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) async {
-    String checkType =
-        returnType.clearClassAccess().clearPointerOrConst().trim();
+    String importPath =
+        returnType.clearClassAccess().clearPointerOrConst().trim().importPath(
+              enumSet: enumSet,
+              structSet: structSet,
+              callbackStructSet: callbackStructSet,
+              interfaceSet: interfaceSet,
+            );
 
-    fileSink.importType(
-      type: checkType,
-      enumSet: enumSet,
-      structSet: structSet,
-      callbackStructSet: callbackStructSet,
-      interfaceSet: interfaceSet,
-    );
+    fileSink.writeImport(packageName: importPath);
   }
 
   /// Generates necessary code for lookup functions for [SteamMethod]

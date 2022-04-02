@@ -24,8 +24,6 @@ extension SteamStructExtensions on SteamStruct {
     fileSink.writeImport(packageName: "dart:ffi");
     fileSink.writeImport(packageName: "package:ffi/ffi.dart");
 
-    String correctedName = name.clearSteamNaming();
-
     await fields.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
@@ -47,9 +45,11 @@ extension SteamStructExtensions on SteamStruct {
       packageName: "../typedefs.dart",
     );
 
+    String correctedName = name.clearSteamNaming().pascalCase;
+
     fileSink.write("@Packed(${_getAlignment(target: target)})");
     fileSink.writeClass(
-      className: correctedName.pascalCase,
+      className: correctedName,
       extend: fields.isNotEmpty ? "Struct" : "Opaque",
     );
     fileSink.writeStartBlock();

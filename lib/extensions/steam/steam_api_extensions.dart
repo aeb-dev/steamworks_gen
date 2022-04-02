@@ -23,7 +23,10 @@ import "steam_typedef_extensions.dart";
 extension SteamApiExtensions on SteamApi {
   /// This is entrypoint for code generation. Generates code according to the
   /// [SteamApi] definition by traversing all fields and emitting necessary code
-  Future<void> generate(String path, String target) async {
+  Future<void> generate({
+    required String path,
+    required String target,
+  }) async {
     List<SteamStruct> missingStructs = [
       SteamStruct(name: "SteamDatagramRelayAuthTicket"),
       SteamStruct(
@@ -66,8 +69,6 @@ extension SteamApiExtensions on SteamApi {
       SteamInterface(name: "ISteamNetworkingConnectionSignaling"),
       SteamInterface(name: "ISteamNetworkingSignalingRecvContext"),
     ];
-
-    // Set<String> typedefSet = typedefs.map((t) => t.typedef).toSet();
 
     Set<String> enumSet = enums.map((e) => e.name).toSet();
     enumSet.addAll(structs.expand((s) => s.enums.map((e) => e.name)));
@@ -160,7 +161,9 @@ extension SteamApiExtensions on SteamApi {
   }
 
   /// Generates code for accessing the library file
-  Future<void> generateDl({required String path}) async {
+  Future<void> generateDl({
+    required String path,
+  }) async {
     String filePath = p.join(path, "dl.dart");
     File file = File(filePath);
     await file.create(recursive: true);
@@ -172,10 +175,12 @@ extension SteamApiExtensions on SteamApi {
     );
 
     fileSink.writeln(
-      "DynamicLibrary dl = DynamicLibrary.open(\"C:/Repos/aeb-dev/steamworks/bin/steam_api64.dll\");\n",
+      "DynamicLibrary dl = DynamicLibrary.open(\"./steam_api64.dll\");\n",
     );
   }
 
+  /// Generates callback id map by type to make
+  /// it easier to lookup callback ids
   Future<void> generateCallbackIdMap({
     required String path,
     Set<String> callbackStructSet = const {},
@@ -187,11 +192,12 @@ extension SteamApiExtensions on SteamApi {
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
     for (String name in callbackStructs.map((cs) => cs.name)) {
-      fileSink.importType(
-        type: name,
+      String importPath = name.importPath(
         relativeness: "",
         callbackStructSet: callbackStructSet,
       );
+
+      fileSink.writeImport(packageName: importPath);
     }
 
     fileSink.write(

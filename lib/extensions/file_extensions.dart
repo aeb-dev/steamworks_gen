@@ -1,7 +1,5 @@
 import "dart:io";
 
-import "string_extensions.dart";
-
 /// Extensions for generating dart class with ease
 extension FileExtensions on IOSink {
   /// writes import in a dart file
@@ -98,49 +96,5 @@ extension FileExtensions on IOSink {
     }
 
     write("on $on");
-  }
-
-  /// writes import according its type
-  void importType({
-    required String type,
-    String relativeness = "../",
-    Set<String> enumSet = const {},
-    Set<String> structSet = const {},
-    Set<String> callbackStructSet = const {},
-    Set<String> interfaceSet = const {},
-  }) {
-    bool isEnum = enumSet.contains(type);
-    if (isEnum) {
-      writeImport(
-        packageName: "${relativeness}enums/${type.toFileName()}.dart",
-      );
-      return;
-    }
-
-    bool isStruct = structSet.contains(type);
-    if (isStruct) {
-      writeImport(
-        packageName: "${relativeness}structs/${type.toFileName()}.dart",
-      );
-      return;
-    }
-
-    bool iscallbackStruct = callbackStructSet.contains(type);
-    if (iscallbackStruct) {
-      writeImport(
-        packageName:
-            "${relativeness}callback_structs/${type.toFileName()}.dart",
-      );
-      return;
-    }
-
-    bool isInterface = interfaceSet.contains(type);
-    if (isInterface) {
-      writeImport(
-        packageName:
-            "${relativeness}interfaces/${type.clearInterfaceName().toFileName()}.dart",
-      );
-      return;
-    }
   }
 }
