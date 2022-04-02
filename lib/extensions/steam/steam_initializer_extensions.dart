@@ -93,7 +93,7 @@ extension SteamInitializerExtensions on SteamInitializer {
 /// Extensions on [Iterable<SteamInitializer>] to generate ffi code
 extension SteamInitializerIterableExtensions on Iterable<SteamInitializer> {
   /// Creates a file for each [SteamInitializer] and generates respective code
-  Future<void> generate({
+  Future<void> generateFile({
     required String path,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},

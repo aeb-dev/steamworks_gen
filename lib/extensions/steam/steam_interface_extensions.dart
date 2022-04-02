@@ -102,7 +102,7 @@ extension SteamInterfaceExtensions on SteamInterface {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) async {
-    await enums.generate(
+    await enums.generateFile(
       path: path,
     );
 
@@ -128,7 +128,7 @@ extension SteamInterfaceExtensions on SteamInterface {
 /// Extensions on [Iterable<SteamInterface>] to generate ffi code
 extension SteamInterfaceIterableExtensions on Iterable<SteamInterface> {
   /// Creates a file for each [SteamInterface] and generates respective code
-  Future<void> generate({
+  Future<void> generateFile({
     required String path,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},

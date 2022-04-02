@@ -78,7 +78,7 @@ extension SteamEnumExtensions on SteamEnum {
 /// Extensions on [Iterable<SteamEnum>] to generate ffi code
 extension SteamEnumIterableExtensions on Iterable<SteamEnum> {
   /// Creates a file for each [SteamEnum] and generates respective code
-  Future<void> generate({
+  Future<void> generateFile({
     required String path,
   }) async {
     for (SteamEnum steamEnum in this) {

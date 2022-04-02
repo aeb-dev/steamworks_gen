@@ -106,7 +106,7 @@ extension SteamStructExtensions on SteamStruct {
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
   }) async {
-    await enums.generate(
+    await enums.generateFile(
       path: path,
     );
 
@@ -470,7 +470,7 @@ extension SteamStructExtensions on SteamStruct {
 /// Extensions on [Iterable<SteamStruct>] to generate ffi code
 extension SteamStructIterableExtensions on Iterable<SteamStruct> {
   /// Creates a file for each [SteamStruct] and generates respective code
-  Future<void> generate({
+  Future<void> generateFile({
     required String path,
     required String target,
     Set<String> enumSet = const {},

@@ -47,7 +47,7 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
 
   /// Generates code for each [SteamTypedef] in
   /// a single file (typedefs.dart)
-  Future<void> generate({
+  Future<void> generateFile({
     required String path,
   }) async {
     String filePath = p.join(path, "typedefs.dart");

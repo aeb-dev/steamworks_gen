@@ -114,20 +114,20 @@ extension SteamApiExtensions on SteamApi {
       path: path,
       fileMode: FileMode.writeOnly,
     );
-    await typedefs.generate(
+    await typedefs.generateFile(
       path: path,
     );
-    await enums.generate(
+    await enums.generateFile(
       path: path,
     );
-    await missingStructs.generate(
+    await missingStructs.generateFile(
       path: path,
       target: target,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
-    await structs.generate(
+    await structs.generateFile(
       path: path,
       target: target,
       // typedefSet,
@@ -135,7 +135,7 @@ extension SteamApiExtensions on SteamApi {
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
-    await callbackStructs.generate(
+    await callbackStructs.generateFile(
       path: path,
       target: target,
       // typedefSet,
@@ -144,14 +144,14 @@ extension SteamApiExtensions on SteamApi {
       callbackStructSet: callbackStructSet,
     );
 
-    await missingInterfaces.generate(
+    await missingInterfaces.generateFile(
       path: path,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
       interfaceSet: interfaceSet,
     );
-    await interfaces.generate(
+    await interfaces.generateFile(
       path: path,
       enumSet: enumSet,
       structSet: structSet,

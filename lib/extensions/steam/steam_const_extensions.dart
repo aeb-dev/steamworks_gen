@@ -40,10 +40,7 @@ extension SteamConstExtensions on SteamConst {
       value: correctedValue.camelCase,
     );
   }
-}
 
-/// Extensions on [Iterable<SteamConst>] to generate ffi code
-extension SteamConstIterableExtensions on Iterable<SteamConst> {
   /// Generates code for each [SteamConst] in
   /// a single file (steam_constants.dart)
   Future<void> generateFile({
@@ -76,6 +73,22 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
 
     await fileSink.flush();
     await fileSink.close();
+  }
+}
+
+/// Extensions on [Iterable<SteamConst>] to generate ffi code
+extension SteamConstIterableExtensions on Iterable<SteamConst> {
+  /// Generates respective code for each [SteamConst]
+  Future<void> generateFile({
+    required String path,
+    required FileMode fileMode,
+  }) async {
+    for (SteamConst steamConst in this) {
+      await steamConst.generateFile(
+        path: path,
+        fileMode: fileMode,
+      );
+    }
   }
 
   /// Generates respective code for each [SteamConst]
