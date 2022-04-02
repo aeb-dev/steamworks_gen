@@ -3,5 +3,5 @@ A package that generates steam_api binding from steam_api.json. Check the result
 
 # Usage
 - Add `steamworks_gen` to your `pubspec.yaml`: `dart pub add -d steamworks_gen`
-- Add `package:ffi` to your `pubspec.yaml`: `dart pub add ffigen`
+- Add `package:ffi` to your `pubspec.yaml`: `dart pub add ffi`
 - Run the tool: `dart run steamworks_gen <parameters>`
