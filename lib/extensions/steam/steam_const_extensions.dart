@@ -91,7 +91,10 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
   }) async {
     for (SteamConst steamConst in this) {
       await steamConst.generateFile(
-          path: path, fileMode: fileMode, exportSink: exportSink);
+        path: path,
+        fileMode: fileMode,
+        exportSink: exportSink,
+      );
     }
   }
 

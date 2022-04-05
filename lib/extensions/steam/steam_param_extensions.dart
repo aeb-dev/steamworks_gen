@@ -25,8 +25,8 @@ extension SteamFieldExtensions on SteamParam {
             );
 
     if (importPath.isNotEmpty) {
-        fileSink.writeImport(packageName: importPath);
-      }
+      fileSink.writeImport(packageName: importPath);
+    }
   }
 
   /// Generates necessary code for a [SteamParam]
