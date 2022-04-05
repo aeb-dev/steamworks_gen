@@ -40,7 +40,9 @@ extension SteamMethodExtensions on SteamMethod {
               interfaceSet: interfaceSet,
             );
 
-    fileSink.writeImport(packageName: importPath);
+    if (importPath.isNotEmpty) {
+        fileSink.writeImport(packageName: importPath);
+      }
   }
 
   /// Generates necessary code for lookup functions for [SteamMethod]

@@ -24,7 +24,9 @@ extension SteamFieldExtensions on SteamField {
               interfaceSet: interfaceSet,
             );
 
-    fileSink.writeImport(packageName: importPath);
+    if (importPath.isNotEmpty) {
+        fileSink.writeImport(packageName: importPath);
+      }
   }
 
   /// Generates necessary code for a [SteamField]

@@ -30,7 +30,7 @@ extension SteamEnumExtensions on SteamEnum {
       }
     }
 
-    String correctedName = name.clearEnumName().clearSteamNaming();
+    String correctedName = name.clearSteamNaming();
 
     fileSink.writeTypedef(
       alias: correctedName,
@@ -57,10 +57,14 @@ extension SteamEnumExtensions on SteamEnum {
   /// Creates a file for the [SteamEnum] and generates respective code
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
   }) async {
-    String fileName = name.clearEnumName().toFileName();
-
+    String fileName = "e${name.clearEnumName().toFileName()}";
     String filePath = p.join(path, "enums", "$fileName.dart");
+    exportSink.writeExport(
+      path: "enums/$fileName.dart",
+    );
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -80,10 +84,12 @@ extension SteamEnumIterableExtensions on Iterable<SteamEnum> {
   /// Creates a file for each [SteamEnum] and generates respective code
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
   }) async {
     for (SteamEnum steamEnum in this) {
       await steamEnum.generateFile(
         path: path,
+        exportSink: exportSink,
       );
     }
   }

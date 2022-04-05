@@ -102,21 +102,30 @@ extension SteamStructExtensions on SteamStruct {
   Future<void> generateFile({
     required String path,
     required String target,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
   }) async {
     await enums.generateFile(
       path: path,
+      exportSink: exportSink,
     );
 
     String filePath;
     String fileName = name.toFileName();
     if (callbackId != -1) {
       filePath = p.join(path, "callback_structs", "$fileName.dart");
+      exportSink.writeExport(
+        path: "callback_structs/$fileName.dart",
+      );
     } else {
       filePath = p.join(path, "structs", "$fileName.dart");
+      exportSink.writeExport(
+        path: "structs/$fileName.dart",
+      );
     }
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -473,6 +482,7 @@ extension SteamStructIterableExtensions on Iterable<SteamStruct> {
   Future<void> generateFile({
     required String path,
     required String target,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -480,6 +490,7 @@ extension SteamStructIterableExtensions on Iterable<SteamStruct> {
     for (SteamStruct struct in this) {
       await struct.generateFile(
         path: path,
+        exportSink: exportSink,
         target: target,
         enumSet: enumSet,
         structSet: structSet,

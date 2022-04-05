@@ -66,13 +66,17 @@ extension SteamInitializerExtensions on SteamInitializer {
   /// Generates necessary file and code for a [SteamInitializer]
   Future<void> generateFile({
     required String path,
-    // Set<String> typedefSet,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
   }) async {
     String fileName = name.toFileName();
-    String filePath = p.join(path, "global_interfaces", "$fileName.dart");
+    String filePath = p.join(path, "initializers", "$fileName.dart");
+    exportSink.writeExport(
+      path: "initializers/$fileName.dart",
+    );
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -95,6 +99,7 @@ extension SteamInitializerIterableExtensions on Iterable<SteamInitializer> {
   /// Creates a file for each [SteamInitializer] and generates respective code
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -102,6 +107,7 @@ extension SteamInitializerIterableExtensions on Iterable<SteamInitializer> {
     for (SteamInitializer initializer in this) {
       await initializer.generateFile(
         path: path,
+        exportSink: exportSink,
         enumSet: enumSet,
         structSet: structSet,
         callbackStructSet: callbackStructSet,

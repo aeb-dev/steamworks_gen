@@ -264,13 +264,6 @@ extension StringExtensions on String {
 
   /// clears prefix E from enums
   String clearEnumName() {
-    // It is hard solve enum name conflict for the
-    // types below, so we just skip them
-    if (this == "ESteamNetworkingConfigValue" ||
-        this == "ECheckFileSignature") {
-      return this;
-    }
-
     if (this[0] == "E" || this[0] == "e") {
       return substring(1);
     }
@@ -558,103 +551,103 @@ extension StringExtensions on String {
         type = "Pointer<CallbackMsg>";
         break;
       case "ISteamMatchmaking *":
-        type = "Pointer<SteamMatchmaking>";
+        type = "Pointer<ISteamMatchmaking>";
         break;
       case "ISteamMatchmakingServers *":
-        type = "Pointer<SteamMatchmakingServers>";
+        type = "Pointer<ISteamMatchmakingServers>";
         break;
       case "ISteamMatchmakingServerListResponse *":
-        type = "Pointer<SteamMatchmakingServerListResponse>";
+        type = "Pointer<ISteamMatchmakingServerListResponse>";
         break;
       case "ISteamUser *":
-        type = "Pointer<SteamUser>";
+        type = "Pointer<ISteamUser>";
         break;
       case "ISteamFriends *":
-        type = "Pointer<SteamFriends>";
+        type = "Pointer<ISteamFriends>";
         break;
       case "ISteamUtils *":
-        type = "Pointer<SteamUtils>";
+        type = "Pointer<ISteamUtils>";
         break;
       case "ISteamUserStats *":
-        type = "Pointer<SteamUserStats>";
+        type = "Pointer<ISteamUserStats>";
         break;
       case "ISteamGameServerStats *":
-        type = "Pointer<SteamGameServerStats>";
+        type = "Pointer<ISteamGameServerStats>";
         break;
       case "ISteamRemoteStorage *":
-        type = "Pointer<SteamRemoteStorage>";
+        type = "Pointer<ISteamRemoteStorage>";
         break;
       case "ISteamGameServer *":
-        type = "Pointer<SteamGameServer>";
+        type = "Pointer<ISteamGameServer>";
         break;
       case "ISteamNetworking *":
-        type = "Pointer<SteamNetworking>";
+        type = "Pointer<ISteamNetworking>";
         break;
       case "ISteamApps *":
-        type = "Pointer<SteamApps>";
+        type = "Pointer<ISteamApps>";
         break;
       case "ISteamScreenshots *":
-        type = "Pointer<SteamScreenshots>";
+        type = "Pointer<ISteamScreenshots>";
         break;
       case "ISteamVideo *":
-        type = "Pointer<SteamVideo>";
+        type = "Pointer<ISteamVideo>";
         break;
       case "ISteamGameSearch *":
-        type = "Pointer<SteamGameSearch>";
+        type = "Pointer<ISteamGameSearch>";
         break;
       case "ISteamHTTP *":
-        type = "Pointer<SteamHTTP>";
+        type = "Pointer<ISteamHTTP>";
         break;
       case "ISteamController *":
-        type = "Pointer<SteamController>";
+        type = "Pointer<ISteamController>";
         break;
       case "ISteamUGC *":
-        type = "Pointer<SteamUGC>";
+        type = "Pointer<ISteamUGC>";
         break;
       case "ISteamAppList *":
-        type = "Pointer<SteamAppList>";
+        type = "Pointer<ISteamAppList>";
         break;
       case "ISteamMusic *":
-        type = "Pointer<SteamMusic>";
+        type = "Pointer<ISteamMusic>";
         break;
       case "ISteamHTMLSurface *":
-        type = "Pointer<SteamHTMLSurface>";
+        type = "Pointer<ISteamHTMLSurface>";
         break;
       case "ISteamInventory *":
-        type = "Pointer<SteamInventory>";
+        type = "Pointer<ISteamInventory>";
         break;
       case "ISteamParentalSettings *":
-        type = "Pointer<SteamParentalSettings>";
+        type = "Pointer<ISteamParentalSettings>";
         break;
       case "ISteamInput *":
-        type = "Pointer<SteamInput>";
+        type = "Pointer<ISteamInput>";
         break;
       case "ISteamRemotePlay *":
-        type = "Pointer<SteamRemotePlay>";
+        type = "Pointer<ISteamRemotePlay>";
         break;
       case "ISteamMatchmakingPlayersResponse *":
-        type = "Pointer<SteamMatchmakingPlayersResponse>";
+        type = "Pointer<ISteamMatchmakingPlayersResponse>";
         break;
       case "ISteamMatchmakingPingResponse *":
-        type = "Pointer<SteamMatchmakingPingResponse>";
+        type = "Pointer<ISteamMatchmakingPingResponse>";
         break;
       case "ISteamNetworkingFakeUDPPort *":
-        type = "Pointer<SteamNetworkingFakeUDPPort>";
+        type = "Pointer<ISteamNetworkingFakeUDPPort>";
         break;
       case "ISteamNetworkingSignalingRecvContext *":
-        type = "Pointer<SteamNetworkingSignalingRecvContext>";
+        type = "Pointer<ISteamNetworkingSignalingRecvContext>";
         break;
       case "ISteamNetworkingConnectionSignaling *":
-        type = "Pointer<SteamNetworkingConnectionSignaling>";
+        type = "Pointer<ISteamNetworkingConnectionSignaling>";
         break;
       case "ISteamMatchmakingRulesResponse *":
-        type = "Pointer<SteamMatchmakingRulesResponse>";
+        type = "Pointer<ISteamMatchmakingRulesResponse>";
         break;
       case "ISteamMusicRemote *":
-        type = "Pointer<SteamMusicRemote>";
+        type = "Pointer<ISteamMusicRemote>";
         break;
       case "ISteamParties *":
-        type = "Pointer<SteamParties>";
+        type = "Pointer<ISteamParties>";
         break;
       case "AppId_t *":
       case "DepotId_t *":
@@ -706,7 +699,7 @@ extension StringExtensions on String {
         break;
     }
 
-    type = type.clearEnumName().clearSteamNaming();
+    type = type.clearSteamNaming();
 
     return type;
   }
@@ -1437,103 +1430,103 @@ extension StringExtensions on String {
         type = "Pointer<CallbackMsg>";
         break;
       case "ISteamMatchmaking *":
-        type = "Pointer<SteamMatchmaking>";
+        type = "Pointer<ISteamMatchmaking>";
         break;
       case "ISteamMatchmakingServers *":
-        type = "Pointer<SteamMatchmakingServers>";
+        type = "Pointer<ISteamMatchmakingServers>";
         break;
       case "ISteamMatchmakingServerListResponse *":
-        type = "Pointer<SteamMatchmakingServerListResponse>";
+        type = "Pointer<ISteamMatchmakingServerListResponse>";
         break;
       case "ISteamUser *":
-        type = "Pointer<SteamUser>";
+        type = "Pointer<ISteamUser>";
         break;
       case "ISteamFriends *":
-        type = "Pointer<SteamFriends>";
+        type = "Pointer<ISteamFriends>";
         break;
       case "ISteamUtils *":
-        type = "Pointer<SteamUtils>";
+        type = "Pointer<ISteamUtils>";
         break;
       case "ISteamUserStats *":
-        type = "Pointer<SteamUserStats>";
+        type = "Pointer<ISteamUserStats>";
         break;
       case "ISteamGameServerStats *":
-        type = "Pointer<SteamGameServerStats>";
+        type = "Pointer<ISteamGameServerStats>";
         break;
       case "ISteamRemoteStorage *":
-        type = "Pointer<SteamRemoteStorage>";
+        type = "Pointer<ISteamRemoteStorage>";
         break;
       case "ISteamGameServer *":
-        type = "Pointer<SteamGameServer>";
+        type = "Pointer<ISteamGameServer>";
         break;
       case "ISteamNetworking *":
-        type = "Pointer<SteamNetworking>";
+        type = "Pointer<ISteamNetworking>";
         break;
       case "ISteamApps *":
-        type = "Pointer<SteamApps>";
+        type = "Pointer<ISteamApps>";
         break;
       case "ISteamScreenshots *":
-        type = "Pointer<SteamScreenshots>";
+        type = "Pointer<ISteamScreenshots>";
         break;
       case "ISteamVideo *":
-        type = "Pointer<SteamVideo>";
+        type = "Pointer<ISteamVideo>";
         break;
       case "ISteamGameSearch *":
-        type = "Pointer<SteamGameSearch>";
+        type = "Pointer<ISteamGameSearch>";
         break;
       case "ISteamHTTP *":
-        type = "Pointer<SteamHTTP>";
+        type = "Pointer<ISteamHTTP>";
         break;
       case "ISteamController *":
-        type = "Pointer<SteamController>";
+        type = "Pointer<ISteamController>";
         break;
       case "ISteamUGC *":
-        type = "Pointer<SteamUGC>";
+        type = "Pointer<ISteamUGC>";
         break;
       case "ISteamAppList *":
-        type = "Pointer<SteamAppList>";
+        type = "Pointer<ISteamAppList>";
         break;
       case "ISteamMusic *":
-        type = "Pointer<SteamMusic>";
+        type = "Pointer<ISteamMusic>";
         break;
       case "ISteamHTMLSurface *":
-        type = "Pointer<SteamHTMLSurface>";
+        type = "Pointer<ISteamHTMLSurface>";
         break;
       case "ISteamInventory *":
-        type = "Pointer<SteamInventory>";
+        type = "Pointer<ISteamInventory>";
         break;
       case "ISteamParentalSettings *":
-        type = "Pointer<SteamParentalSettings>";
+        type = "Pointer<ISteamParentalSettings>";
         break;
       case "ISteamInput *":
-        type = "Pointer<SteamInput>";
+        type = "Pointer<ISteamInput>";
         break;
       case "ISteamRemotePlay *":
-        type = "Pointer<SteamRemotePlay>";
+        type = "Pointer<ISteamRemotePlay>";
         break;
       case "ISteamMatchmakingPlayersResponse *":
-        type = "Pointer<SteamMatchmakingPlayersResponse>";
+        type = "Pointer<ISteamMatchmakingPlayersResponse>";
         break;
       case "ISteamMatchmakingPingResponse *":
-        type = "Pointer<SteamMatchmakingPingResponse>";
+        type = "Pointer<ISteamMatchmakingPingResponse>";
         break;
       case "ISteamNetworkingFakeUDPPort *":
-        type = "Pointer<SteamNetworkingFakeUDPPort>";
+        type = "Pointer<ISteamNetworkingFakeUDPPort>";
         break;
       case "ISteamNetworkingSignalingRecvContext *":
-        type = "Pointer<SteamNetworkingSignalingRecvContext>";
+        type = "Pointer<ISteamNetworkingSignalingRecvContext>";
         break;
       case "ISteamNetworkingConnectionSignaling *":
-        type = "Pointer<SteamNetworkingConnectionSignaling>";
+        type = "Pointer<ISteamNetworkingConnectionSignaling>";
         break;
       case "ISteamMatchmakingRulesResponse *":
-        type = "Pointer<SteamMatchmakingRulesResponse>";
+        type = "Pointer<ISteamMatchmakingRulesResponse>";
         break;
       case "ISteamMusicRemote *":
-        type = "Pointer<SteamMusicRemote>";
+        type = "Pointer<ISteamMusicRemote>";
         break;
       case "ISteamParties *":
-        type = "Pointer<SteamParties>";
+        type = "Pointer<ISteamParties>";
         break;
       case "AppId_t *":
       case "DepotId_t *":
@@ -1789,14 +1782,14 @@ extension StringExtensions on String {
     String packageName;
     if (enumSet.contains(this)) {
       packageName =
-          "${relativeness}enums/${this.clearEnumName().toFileName()}.dart";
+          "${relativeness}enums/e${this.clearEnumName().toFileName()}.dart";
     } else if (structSet.contains(this)) {
       packageName = "${relativeness}structs/${this.toFileName()}.dart";
     } else if (callbackStructSet.contains(this)) {
       packageName = "${relativeness}callback_structs/${this.toFileName()}.dart";
     } else if (interfaceSet.contains(this)) {
       packageName =
-          "${relativeness}interfaces/${this.clearInterfaceName().toFileName()}.dart";
+          "${relativeness}interfaces/i${this.clearInterfaceName().toFileName()}.dart";
     } else {
       packageName = "";
     }

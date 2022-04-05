@@ -84,8 +84,15 @@ extension SteamApiExtensions on SteamApi {
     Set<String> interfaceSet = interfaces.map((i) => i.name).toSet()
       ..addAll(missingInterfaces.map((i) => i.name));
 
+    String exportFilePath = p.join(path, "generated.dart");
+    File file = File(exportFilePath);
+    await file.create(recursive: true);
+
+    IOSink exportSink = file.openWrite(mode: FileMode.writeOnly);
+
     await generateCallbackIdMap(
       path: path,
+      exportSink: exportSink,
       callbackStructSet: callbackStructSet,
     );
 
@@ -94,18 +101,21 @@ extension SteamApiExtensions on SteamApi {
     );
     await generateSteamApi(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
     await generateSteamGameServer(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
     await generateDispatch(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -113,15 +123,19 @@ extension SteamApiExtensions on SteamApi {
     await consts.generateFile(
       path: path,
       fileMode: FileMode.writeOnly,
+      exportSink: exportSink,
     );
     await typedefs.generateFile(
       path: path,
+      exportSink: exportSink,
     );
     await enums.generateFile(
       path: path,
+      exportSink: exportSink,
     );
     await missingStructs.generateFile(
       path: path,
+      exportSink: exportSink,
       target: target,
       enumSet: enumSet,
       structSet: structSet,
@@ -129,16 +143,16 @@ extension SteamApiExtensions on SteamApi {
     );
     await structs.generateFile(
       path: path,
+      exportSink: exportSink,
       target: target,
-      // typedefSet,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
     await callbackStructs.generateFile(
       path: path,
+      exportSink: exportSink,
       target: target,
-      // typedefSet,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -146,6 +160,7 @@ extension SteamApiExtensions on SteamApi {
 
     await missingInterfaces.generateFile(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -153,6 +168,7 @@ extension SteamApiExtensions on SteamApi {
     );
     await interfaces.generateFile(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -183,9 +199,14 @@ extension SteamApiExtensions on SteamApi {
   /// it easier to lookup callback ids
   Future<void> generateCallbackIdMap({
     required String path,
+    required IOSink exportSink,
     Set<String> callbackStructSet = const {},
   }) async {
     String filePath = p.join(path, "callback_id_map.dart");
+    exportSink.writeExport(
+      path: "callback_id_map.dart",
+    );
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -197,7 +218,9 @@ extension SteamApiExtensions on SteamApi {
         callbackStructSet: callbackStructSet,
       );
 
-      fileSink.writeImport(packageName: importPath);
+      if (importPath.isNotEmpty) {
+        fileSink.writeImport(packageName: importPath);
+      }
     }
 
     fileSink.write(
@@ -219,6 +242,7 @@ extension SteamApiExtensions on SteamApi {
   /// Generates code for common steam apis
   Future<void> generateSteamApi({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -272,6 +296,7 @@ extension SteamApiExtensions on SteamApi {
 
     await steamApi.generateFile(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -281,6 +306,7 @@ extension SteamApiExtensions on SteamApi {
   /// Generates code for steam game server
   Future<void> generateSteamGameServer({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -349,6 +375,7 @@ extension SteamApiExtensions on SteamApi {
 
     await gameServer.generateFile(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
@@ -358,6 +385,7 @@ extension SteamApiExtensions on SteamApi {
   /// Generates code for dispatch
   Future<void> generateDispatch({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -443,6 +471,7 @@ extension SteamApiExtensions on SteamApi {
 
     await dispatch.generateFile(
       path: path,
+      exportSink: exportSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,

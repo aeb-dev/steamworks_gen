@@ -97,4 +97,11 @@ extension FileExtensions on IOSink {
 
     write("on $on");
   }
+
+  /// writes export line for a file
+  void writeExport({
+    required String path,
+  }) {
+    writeln("export \"$path\";");
+  }
 }

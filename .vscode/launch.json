@@ -1,0 +1,15 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "steamworks",
+            "request": "launch",
+            "type": "dart",
+            "program": "bin/steamworks_gen.dart",
+            "args": ["-o", "..\\steamworks\\lib\\src\\generated", "C:\\Users\\bayra\\Downloads\\sdk\\public\\steam\\steam_api.json"]
+        }
+    ]
+}

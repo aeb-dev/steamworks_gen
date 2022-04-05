@@ -46,8 +46,13 @@ extension SteamConstExtensions on SteamConst {
   Future<void> generateFile({
     required String path,
     required FileMode fileMode,
+    required IOSink exportSink,
   }) async {
     String filePath = p.join(path, "steam_constants.dart");
+    exportSink.writeExport(
+      path: "steam_constants.dart",
+    );
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -82,12 +87,11 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
   Future<void> generateFile({
     required String path,
     required FileMode fileMode,
+    required IOSink exportSink,
   }) async {
     for (SteamConst steamConst in this) {
       await steamConst.generateFile(
-        path: path,
-        fileMode: fileMode,
-      );
+          path: path, fileMode: fileMode, exportSink: exportSink);
     }
   }
 

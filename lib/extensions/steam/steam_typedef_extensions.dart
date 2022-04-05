@@ -49,8 +49,12 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
   /// a single file (typedefs.dart)
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
   }) async {
     String filePath = p.join(path, "typedefs.dart");
+    exportSink.writeExport(
+      path: "typedefs.dart",
+    );
     File file = File(filePath);
     await file.create(recursive: true);
 

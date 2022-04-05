@@ -49,7 +49,7 @@ extension SteamInterfaceExtensions on SteamInterface {
       interfaceSet: interfaceSet,
     );
 
-    String correctedName = name.clearInterfaceName().clearSteamNaming();
+    String correctedName = name.clearSteamNaming();
 
     await accessors.generateLookup(
       fileSink: fileSink,
@@ -97,6 +97,7 @@ extension SteamInterfaceExtensions on SteamInterface {
   /// Generates necessary file and code for a [SteamInterface]
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -104,10 +105,15 @@ extension SteamInterfaceExtensions on SteamInterface {
   }) async {
     await enums.generateFile(
       path: path,
+      exportSink: exportSink,
     );
 
-    String fileName = name.clearInterfaceName().toFileName();
+    String fileName = "i${name.clearInterfaceName().toFileName()}";
     String filePath = p.join(path, "interfaces", "$fileName.dart");
+    exportSink.writeExport(
+      path: "interfaces/$fileName.dart",
+    );
+
     File file = File(filePath);
     await file.create(recursive: true);
 
@@ -130,6 +136,7 @@ extension SteamInterfaceIterableExtensions on Iterable<SteamInterface> {
   /// Creates a file for each [SteamInterface] and generates respective code
   Future<void> generateFile({
     required String path,
+    required IOSink exportSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
@@ -137,6 +144,7 @@ extension SteamInterfaceIterableExtensions on Iterable<SteamInterface> {
   }) async {
     for (SteamInterface interface in this) {
       await interface.generateFile(
+        exportSink: exportSink,
         path: path,
         enumSet: enumSet,
         structSet: structSet,
