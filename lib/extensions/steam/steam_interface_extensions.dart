@@ -20,6 +20,7 @@ extension SteamInterfaceExtensions on SteamInterface {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) async {
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(
       packageName: "dart:ffi",
     );

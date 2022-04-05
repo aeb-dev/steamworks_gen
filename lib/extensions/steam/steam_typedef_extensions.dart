@@ -60,6 +60,7 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(
       packageName: "dart:ffi",
     );

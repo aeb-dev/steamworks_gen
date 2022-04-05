@@ -186,6 +186,7 @@ extension SteamApiExtensions on SteamApi {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(
       packageName: "dart:ffi",
     );
@@ -211,6 +212,7 @@ extension SteamApiExtensions on SteamApi {
     await file.create(recursive: true);
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
 
     for (String name in callbackStructs.map((cs) => cs.name)) {
       String importPath = name.importPath(

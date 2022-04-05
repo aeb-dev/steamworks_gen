@@ -58,6 +58,7 @@ extension SteamConstExtensions on SteamConst {
 
     IOSink fileSink = file.openWrite(mode: fileMode);
 
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     if (fileMode == FileMode.writeOnly) {
       fileSink.writeImport(
         packageName: "typedefs.dart",

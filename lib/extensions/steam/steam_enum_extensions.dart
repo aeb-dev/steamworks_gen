@@ -32,6 +32,7 @@ extension SteamEnumExtensions on SteamEnum {
 
     String correctedName = name.clearSteamNaming();
 
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeTypedef(
       alias: correctedName,
       of: "int",

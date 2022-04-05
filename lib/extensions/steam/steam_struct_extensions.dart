@@ -21,6 +21,7 @@ extension SteamStructExtensions on SteamStruct {
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
   }) async {
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(packageName: "dart:ffi");
     fileSink.writeImport(packageName: "package:ffi/ffi.dart");
 

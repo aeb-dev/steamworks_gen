@@ -1,6 +1,6 @@
 name: steamworks_gen
 description: A command-line tool to generate Steamworks SDK in a darty way
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/aeb-dev/steamworks_gen
 repository: https://github.com/aeb-dev/steamworks_gen
 issues: https://github.com/aeb-dev/steamworks_gen/issues
