@@ -1,3 +1,7 @@
+## 0.2.2
+- Do not generate `ISteamController` since it is deprecated.
+- Fix for constant generation
+
 ## 0.2.1
 - Ignore linter public_member_api_docs for generated files
 
