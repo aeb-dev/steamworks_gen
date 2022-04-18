@@ -143,7 +143,8 @@ extension SteamInterfaceIterableExtensions on Iterable<SteamInterface> {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) async {
-    for (SteamInterface interface in this) {
+    for (SteamInterface interface
+        in where((i) => i.name != "ISteamController")) {
       await interface.generateFile(
         exportSink: exportSink,
         path: path,

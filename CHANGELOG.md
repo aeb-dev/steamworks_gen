@@ -1,3 +1,6 @@
+## 0.2.3
+- Do not generate `ISteamController` since it is deprecated, it is real this time.
+
 ## 0.2.2
 - Do not generate `ISteamController` since it is deprecated.
 - Fix for constant generation
