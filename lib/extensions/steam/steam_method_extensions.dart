@@ -19,6 +19,7 @@ extension SteamMethodExtensions on SteamMethod {
     "SetGlobalCallback_FakeIPResult",
     "SetGlobalCallback_MessagesSessionRequest",
     "SetGlobalCallback_MessagesSessionFailed",
+    "SteamAPI_ISteamClient_GetISteamController",
   };
 
   bool _shouldCreate() => !(_ignoreList.contains(name) ||
