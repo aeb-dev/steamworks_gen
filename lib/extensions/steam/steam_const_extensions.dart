@@ -40,46 +40,6 @@ extension SteamConstExtensions on SteamConst {
       value: correctedValue.camelCase,
     );
   }
-
-  /// Generates code for each [SteamConst] in
-  /// a single file (steam_constants.dart)
-  Future<void> generateFile({
-    required String path,
-    required FileMode fileMode,
-    required IOSink exportSink,
-  }) async {
-    String filePath = p.join(path, "steam_constants.dart");
-    exportSink.writeExport(
-      path: "steam_constants.dart",
-    );
-
-    File file = File(filePath);
-    await file.create(recursive: true);
-
-    IOSink fileSink = file.openWrite(mode: fileMode);
-
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
-    if (fileMode == FileMode.writeOnly) {
-      fileSink.writeImport(
-        packageName: "typedefs.dart",
-      );
-    }
-
-    fileSink.writeClass(
-      className: "SteamConstants",
-    );
-
-    fileSink.writeStartBlock();
-
-    await generate(
-      fileSink: fileSink,
-    );
-
-    fileSink.writeEndBlock();
-
-    await fileSink.flush();
-    await fileSink.close();
-  }
 }
 
 /// Extensions on [Iterable<SteamConst>] to generate ffi code
@@ -87,16 +47,40 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
   /// Generates respective code for each [SteamConst]
   Future<void> generateFile({
     required String path,
-    required FileMode fileMode,
     required IOSink exportSink,
   }) async {
+    String filePath = p.join(path, "steam_constants.dart");
+
+    exportSink.writeExport(
+      path: "steam_constants.dart",
+    );
+
+    File file = File(filePath);
+    await file.create(recursive: true);
+
+    IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+
+    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeImport(
+      packageName: "typedefs.dart",
+    );
+
+    fileSink.writeClass(
+      className: "SteamConstants",
+    );
+
+    fileSink.writeStartBlock();
+
     for (SteamConst steamConst in this) {
-      await steamConst.generateFile(
-        path: path,
-        fileMode: fileMode,
-        exportSink: exportSink,
+      await steamConst.generate(
+        fileSink: fileSink,
       );
     }
+
+    fileSink.writeEndBlock();
+
+    await fileSink.flush();
+    await fileSink.close();
   }
 
   /// Generates respective code for each [SteamConst]

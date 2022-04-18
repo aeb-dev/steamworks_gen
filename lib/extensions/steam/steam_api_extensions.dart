@@ -122,7 +122,6 @@ extension SteamApiExtensions on SteamApi {
     );
     await consts.generateFile(
       path: path,
-      fileMode: FileMode.writeOnly,
       exportSink: exportSink,
     );
     await typedefs.generateFile(
