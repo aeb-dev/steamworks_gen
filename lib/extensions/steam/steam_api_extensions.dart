@@ -189,9 +189,12 @@ extension SteamApiExtensions on SteamApi {
     fileSink.writeImport(
       packageName: "dart:ffi",
     );
+    fileSink.writeImport(
+      packageName: "dart:io",
+    );
 
     fileSink.writeln(
-      "DynamicLibrary dl = DynamicLibrary.open(\"./steam_api64.dll\");\n",
+      "DynamicLibrary dl = Platform.isWindows ? DynamicLibrary.open(\"./steam_api64.dll\") : Platform.isLinux ? DynamicLibrary.open(\"./libsteam_api.so\") : DynamicLibrary.open(\"./libsteam_api.dylib\");\n",
     );
   }
 

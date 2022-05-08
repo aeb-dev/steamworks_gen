@@ -1,20 +1,30 @@
+## 0.2.4
+
+- Library loading based on operating system.
+
 ## 0.2.3
+
 - Do not generate `ISteamController` since it is deprecated, it is real this time.
 
 ## 0.2.2
+
 - Do not generate `ISteamController` since it is deprecated.
 - Fix for constant generation
 
 ## 0.2.1
+
 - Ignore linter public_member_api_docs for generated files
 
 ## 0.2.0
+
 - Enum and interface naming has been changed
 - Single export file for generated files
 - From now on global interfaces are called initializers
 
 ## 0.1.1
+
 - README correction
 
 ## 0.1.0
+
 - Initial version.
