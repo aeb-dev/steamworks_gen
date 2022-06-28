@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Generate C enums as Dart Enhanced Enums.
+- Functions with Enums made more readable by introducing C and Dart type aliases.
+- Struct packing changed according to the fixes in [this issue](https://github.com/dart-lang/sdk/issues/46644)
+
 ## 0.2.4
 
 - Library loading based on operating system.
