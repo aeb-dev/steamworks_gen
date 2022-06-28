@@ -10,11 +10,11 @@ import "../string_extensions.dart";
 /// Extensions on [SteamConst] to generate ffi code
 extension SteamConstExtensions on SteamConst {
   /// Generates necessary code for a [SteamConst]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
     String correctedName = name.clearSteamNaming().afterFirstCapital();
-    String correctedType = type.toDartType();
+    String correctedType = type.toToken().typeDart;
 
     String correctedValue = value.replaceAll("ull", "");
     correctedValue = correctedValue.replaceAll(" (uint32) ", "");
@@ -72,7 +72,7 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
     fileSink.writeStartBlock();
 
     for (SteamConst steamConst in this) {
-      await steamConst.generate(
+      steamConst.generate(
         fileSink: fileSink,
       );
     }
@@ -84,11 +84,11 @@ extension SteamConstIterableExtensions on Iterable<SteamConst> {
   }
 
   /// Generates respective code for each [SteamConst]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
     for (SteamConst steamConst in this) {
-      await steamConst.generate(
+      steamConst.generate(
         fileSink: fileSink,
       );
     }

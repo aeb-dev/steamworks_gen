@@ -36,16 +36,10 @@ extension FileExtensions on IOSink {
   }
 
   /// writes an enum declaration
-  /// dart does not support assigning values to enums
-  /// and since steam has jump between enum values
-  /// we create a class until dart adds assigning values to enums
-  /// write("enum $enumName");
   void writeEnum({
     required String enumName,
   }) {
-    writeClass(
-      className: enumName,
-    );
+    write("enum $enumName");
   }
 
   /// writes a field of a struct

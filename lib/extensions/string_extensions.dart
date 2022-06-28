@@ -1,5 +1,7 @@
 import "package:recase/recase.dart";
 
+import "token.dart";
+
 /// Extensions for manipulating steam types with ease
 extension StringExtensions on String {
   static const Set<String> _dartKeywords = {
@@ -69,7 +71,8 @@ extension StringExtensions on String {
   };
 
   /// clears the const keyword or pointers on a string
-  String clearPointerOrConst() => replaceAll(RegExp(r"(\*|&|const)"), "");
+  String clearPointerOrConst() =>
+      replaceAll(RegExp(r"(\*|&|const|(\[.+\]))"), "");
 
   /// clears the steam naming to make it more darty
   String clearSteamNaming() {
@@ -198,9 +201,15 @@ extension StringExtensions on String {
       result = result.replaceFirst("fl", "");
     } else if (result.startsWith("BIs")) {
       result = result.replaceFirst("BIs", "is");
+    } else if (result.startsWith("pvec")) {
+      result = result.replaceFirst("pvec", "");
+    } else if (result.startsWith("pun")) {
+      result = result.replaceFirst("pun", "");
+    } else if (result.startsWith("nAppId")) {
+      result = result.replaceFirst("nAppId", "appId");
+    } else if (result.startsWith("pnAppId")) {
+      result = result.replaceFirst("pnAppId", "appId");
     }
-
-    // m_c, cPlayersMax, cPlayers, enum, flPageScale, eresult
 
     result = result.replaceAll("_", "");
 
@@ -271,716 +280,218 @@ extension StringExtensions on String {
     return this;
   }
 
-  /// convert a steam type to a string that is usable for
-  /// dart functions
-  String toDartType() {
-    String result = this;
-    switch (result) {
-      case "void *":
-        result = "Pointer<Void>";
-        break;
-
-      case "void":
-        result = "void";
-        break;
-
-      case "bool":
-        result = "bool";
-        break;
-
-      case "unsigned char":
-      case "signed char":
-      case "short":
-      case "unsigned short":
-      case "int":
-      case "unsigned int":
-      case "long long":
-      case "unsigned long long":
-      case "intp":
-      case "uint32":
-      case "uint16":
-      case "int32":
-      case "int32_t":
-      case "int64":
-      case "int64_t":
-      case "uint64":
-      case "int16":
-      case "int8":
-      case "uint8":
-      case "char":
-        result = "int";
-        break;
-      case "float":
-      case "double":
-        result = "double";
-        break;
-      case "char [1024]":
-        result = "String";
-        break;
-
-      default:
-        break;
-    }
-
-    return result.clearSteamNaming();
-  }
-
-  // TODO: parse type to create function instead of putting
-  // everything under a switch. This is also true for
-  // toNativeTypeAnnotation, toNativeFunctionType
-
-  /// convert a steam type to a string that is usable for
-  /// dart counterpart of ffi functions
-  String toNativeType() {
+  /// converts the current [String] into [Token] which can be used
+  /// to generate code
+  Token toToken() {
     String type = clearClassAccess();
+
+    // we assume that [] and pointers will not exist at the same time in a steam type
+    Iterable<RegExpMatch> pointerMatches = RegExp(r"(\*|&)").allMatches(type);
+    Iterable<RegExpMatch> arrayMatches =
+        RegExp(r"(?:\[(.*?)\])").allMatches(type);
+
+    type = type.clearPointerOrConst().trim();
+
+    String typeDart;
+    String typeFfiDart;
+    String typeFfiC;
+    String typeAnnotation;
+    String fieldAccessor = "{0}";
+    String caller = "{0}";
+    TokenType tokenType;
     switch (type) {
+      // primitives
       case "void":
-        type = "void";
+        typeDart = "void";
+        typeFfiDart = typeDart;
+        typeFfiC = "Void";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
       case "bool":
-        type = "bool";
+        typeDart = "bool";
+        typeFfiDart = typeDart;
+        typeFfiC = "Bool";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
       case "size_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Size";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "unsigned char":
+      case "uint8":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedChar";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "signed char":
+      case "int8":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "SignedChar";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "short":
+      case "int16":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Short";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "unsigned short":
+      case "uint16":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedShort";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "int":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "unsigned int":
+      case "uint32":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedInt";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
       case "long long":
-      case "unsigned long long":
       case "intp":
-      case "uintp":
-      case "uint32":
-      case "uint32_t":
-      case "uint16":
-      case "uint16_t":
-      case "int32":
-      case "int32_t":
-      case "uint":
       case "int64":
-      case "int64_t":
-      case "uint64":
-      case "uint64_t":
-      case "int16":
-      case "int16_t":
-      case "int8":
-      case "int8_t":
-      case "uint8":
-      case "uint8_t":
-      case "char":
-      case "intptr_t":
-        type = "int";
-        break;
-      case "float":
-      case "double":
-        type = "double";
-        break;
-
-      // arrays
-      case "uint8 [16]":
-      case "uint8 [20]":
-      case "uint8 [512]":
-        type = "Array<UnsignedChar>";
-        break;
-      case "uint16 [8]":
-        type = "Array<UnsignedShort>";
-        break;
-      case "uint32 [10]":
-      case "uint32 [16]":
-      case "uint32 [50]":
-      case "uint32 [63]":
-      case "AppId_t [32]":
-        type = "Array<UnsignedInt>";
-        break;
-      case "PublishedFileId_t [50]":
-      case "CSteamID [50]":
-        type = "Array<UnsignedLongLong>";
-        break;
-      case "float [50]":
-        type = "Array<Float>";
-        break;
-
-      // pointers
-      case "void *":
-      case "const void *":
-        type = "Pointer<Void>";
-        break;
-      case "bool *":
-        type = "Pointer<Bool>";
-        break;
-      case "size_t *":
-        type = "Pointer<Size>";
-        break;
-      case "int &":
-      case "int *":
-      case "const int *":
-      case "int32 *":
-      case "const int32 *":
-        type = "Pointer<Int>";
-        break;
-      case "int64 *":
-        type = "Pointer<LongLong>";
-        break;
-      case "uint8 *":
-      case "const uint8 *":
-        type = "Pointer<UnsignedChar>";
-        break;
-      case "uint16 *":
-      case "const uint16 *":
-        type = "Pointer<UnsignedShort>";
-        break;
-      case "float *":
-        type = "Pointer<Float>";
-        break;
-      case "double *":
-        type = "Pointer<Double>";
-        break;
-      case "char *":
-      case "char [4]":
-      case "char [32]":
-      case "char [64]":
-      case "char [128]":
-      case "char [129]":
-      case "char [240]":
-      case "char [256]":
-      case "char [260]":
-      case "char [512]":
-      case "char [1024]":
-      case "char [1025]":
-      case "char [2048]":
-      case "char [8000]":
-      case "const char *":
-        type = "Pointer<Utf8>";
-        break;
-      case "char **":
-      case "const char **":
-        type = "Pointer<Pointer<Utf8>>";
-        break;
-      case "const servernetadr_t &":
-        type = "Pointer<ServerNetAdr>";
-        break;
-      case "SteamNetworkingIPAddr *":
-      case "SteamNetworkingIPAddr &":
-      case "const SteamNetworkingIPAddr *":
-      case "const SteamNetworkingIPAddr &":
-        type = "Pointer<SteamNetworkingIPAddr>";
-        break;
-      case "SteamNetworkingIdentity *":
-      case "const SteamNetworkingIdentity &":
-      case "const SteamNetworkingIdentity *":
-        type = "Pointer<SteamNetworkingIdentity>";
-        break;
-      case "FriendGameInfo_t *":
-        type = "Pointer<FriendGameInfo>";
-        break;
-      case "LeaderboardEntry_t *":
-        type = "Pointer<LeaderboardEntry>";
-        break;
-      case "SteamParamStringArray_t *":
-      case "const SteamParamStringArray_t *":
-        type = "Pointer<SteamParamStringArray>";
-        break;
-      case "SteamPartyBeaconLocation_t *":
-        type = "Pointer<SteamPartyBeaconLocation>";
-        break;
-      case "P2PSessionState_t *":
-        type = "Pointer<P2PSessionState>";
-        break;
-      case "SteamUGCDetails_t *":
-        type = "Pointer<SteamUGCDetails>";
-        break;
-      case "SteamIPAddress_t *":
-      case "const SteamIPAddress_t &":
-        type = "Pointer<SteamIPAddress>";
-        break;
-      case "SteamNetworkingMessage_t *":
-        type = "Pointer<SteamNetworkingMessage>";
-        break;
-      case "SteamNetworkingMessage_t **":
-      case "SteamNetworkingMessage_t *const *":
-        type = "Pointer<Pointer<SteamNetworkingMessage>>";
-        break;
-      case "SteamNetworkPingLocation_t &":
-      case "const SteamNetworkPingLocation_t &":
-        type = "Pointer<SteamNetworkPingLocation>";
-        break;
-      case "SteamItemDetails_t *":
-        type = "Pointer<SteamItemDetails>";
-        break;
-      case "MatchMakingKeyValuePair_t **":
-        type = "Pointer<Pointer<MatchMakingKeyValuePair>>";
-        break;
-      case "gameserveritem_t *":
-      case "gameserveritem_t &":
-        type = "Pointer<GameServerItem>";
-        break;
-      case "SteamNetConnectionInfo_t *":
-        type = "Pointer<SteamNetConnectionInfo>";
-        break;
-      case "SteamNetConnectionRealTimeStatus_t *":
-        type = "Pointer<SteamNetConnectionRealTimeStatus>";
-        break;
-      case "SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t &":
-        type = "Pointer<SteamNetworkingConfigValue>";
-        break;
-      case "SteamNetConnectionRealTimeLaneStatus_t *":
-        type = "Pointer<SteamNetConnectionRealTimeLaneStatus>";
-        break;
-      case "SteamNetAuthenticationStatus_t *":
-        type = "Pointer<SteamNetAuthenticationStatus>";
-        break;
-      case "SteamNetworkingFakeIPResult_t *":
-        type = "Pointer<SteamNetworkingFakeIPResult>";
-        break;
-      case "SteamRelayNetworkStatus_t *":
-        type = "Pointer<SteamRelayNetworkStatus>";
-        break;
-      case "SteamDatagramRelayAuthTicket *":
-        type = "Pointer<SteamDatagramRelayAuthTicket>";
-        break;
-      case "SteamDatagramGameCoordinatorServerLogin *":
-        type = "Pointer<SteamDatagramGameCoordinatorServerLogin>";
-        break;
-      case "SteamDatagramHostedAddress *":
-        type = "Pointer<SteamDatagramHostedAddress>";
-        break;
-      case "CallbackMsg_t *":
-        type = "Pointer<CallbackMsg>";
-        break;
-      case "ISteamMatchmaking *":
-        type = "Pointer<ISteamMatchmaking>";
-        break;
-      case "ISteamMatchmakingServers *":
-        type = "Pointer<ISteamMatchmakingServers>";
-        break;
-      case "ISteamMatchmakingServerListResponse *":
-        type = "Pointer<ISteamMatchmakingServerListResponse>";
-        break;
-      case "ISteamUser *":
-        type = "Pointer<ISteamUser>";
-        break;
-      case "ISteamFriends *":
-        type = "Pointer<ISteamFriends>";
-        break;
-      case "ISteamUtils *":
-        type = "Pointer<ISteamUtils>";
-        break;
-      case "ISteamUserStats *":
-        type = "Pointer<ISteamUserStats>";
-        break;
-      case "ISteamGameServerStats *":
-        type = "Pointer<ISteamGameServerStats>";
-        break;
-      case "ISteamRemoteStorage *":
-        type = "Pointer<ISteamRemoteStorage>";
-        break;
-      case "ISteamGameServer *":
-        type = "Pointer<ISteamGameServer>";
-        break;
-      case "ISteamNetworking *":
-        type = "Pointer<ISteamNetworking>";
-        break;
-      case "ISteamApps *":
-        type = "Pointer<ISteamApps>";
-        break;
-      case "ISteamScreenshots *":
-        type = "Pointer<ISteamScreenshots>";
-        break;
-      case "ISteamVideo *":
-        type = "Pointer<ISteamVideo>";
-        break;
-      case "ISteamGameSearch *":
-        type = "Pointer<ISteamGameSearch>";
-        break;
-      case "ISteamHTTP *":
-        type = "Pointer<ISteamHTTP>";
-        break;
-      case "ISteamController *":
-        type = "Pointer<ISteamController>";
-        break;
-      case "ISteamUGC *":
-        type = "Pointer<ISteamUGC>";
-        break;
-      case "ISteamAppList *":
-        type = "Pointer<ISteamAppList>";
-        break;
-      case "ISteamMusic *":
-        type = "Pointer<ISteamMusic>";
-        break;
-      case "ISteamHTMLSurface *":
-        type = "Pointer<ISteamHTMLSurface>";
-        break;
-      case "ISteamInventory *":
-        type = "Pointer<ISteamInventory>";
-        break;
-      case "ISteamParentalSettings *":
-        type = "Pointer<ISteamParentalSettings>";
-        break;
-      case "ISteamInput *":
-        type = "Pointer<ISteamInput>";
-        break;
-      case "ISteamRemotePlay *":
-        type = "Pointer<ISteamRemotePlay>";
-        break;
-      case "ISteamMatchmakingPlayersResponse *":
-        type = "Pointer<ISteamMatchmakingPlayersResponse>";
-        break;
-      case "ISteamMatchmakingPingResponse *":
-        type = "Pointer<ISteamMatchmakingPingResponse>";
-        break;
-      case "ISteamNetworkingFakeUDPPort *":
-        type = "Pointer<ISteamNetworkingFakeUDPPort>";
-        break;
-      case "ISteamNetworkingSignalingRecvContext *":
-        type = "Pointer<ISteamNetworkingSignalingRecvContext>";
-        break;
-      case "ISteamNetworkingConnectionSignaling *":
-        type = "Pointer<ISteamNetworkingConnectionSignaling>";
-        break;
-      case "ISteamMatchmakingRulesResponse *":
-        type = "Pointer<ISteamMatchmakingRulesResponse>";
-        break;
-      case "ISteamMusicRemote *":
-        type = "Pointer<ISteamMusicRemote>";
-        break;
-      case "ISteamParties *":
-        type = "Pointer<ISteamParties>";
-        break;
-      case "AppId_t *":
-      case "DepotId_t *":
-      case "uint32 *":
-      case "const uint32 *":
-      case "SNetSocket_t *":
-      case "SteamNetworkingPOPID *":
-      case "HSteamNetConnection *":
-        type = "Pointer<UnsignedInt>";
-        break;
-      case "uint64 *":
-      case "ControllerHandle_t *":
-      case "ControllerActionSetHandle_t *":
-      case "CSteamID *":
-      case "CGameID *":
-      case "SteamAPICall_t *":
-      case "InputActionSetHandle_t *":
-      case "PublishedFileId_t *":
-      case "InputHandle_t *":
-      case "SteamItemInstanceID_t *":
-      case "const SteamItemInstanceID_t *":
-        type = "Pointer<UnsignedLongLong>";
-        break;
-      case "ControllerActionOrigin *":
-      case "EControllerActionOrigin *":
-      case "EChatEntryType *":
-      case "EItemPreviewType *":
-      case "ERemoteStorageFilePathType *":
-      case "ERemoteStorageLocalFileChange *":
-      case "ESteamNetworkingConfigDataType *":
-      case "EInputActionOrigin *":
-      case "ESteamNetworkingConfigScope *":
-      case "SteamInventoryResult_t *":
-      case "SteamItemDef_t *":
-      case "const SteamItemDef_t *":
-      case "HSteamPipe *":
-        type = "Pointer<Int32>";
-        break;
-      case "SteamNetworkingErrMsg &":
-        type = "Pointer<Pointer<Utf8>>";
-        break;
-      case "void (*)(SteamNetworkingMessage_t *)":
-        type =
-            "Pointer<NativeFunction<Pointer<Void> Function(Pointer<SteamNetworkingMessage>)>>";
-        break;
-
-      // enums, typedefs, structs
-      default:
-        break;
-    }
-
-    type = type.clearSteamNaming();
-
-    return type;
-  }
-
-  /// convert a steam type to a string that is usable for
-  /// struct annotations
-  String toNativeTypeAnnotation() {
-    String type = clearClassAccess();
-    switch (type) {
-      case "void":
-        type = "Void()";
-        break;
-      case "bool":
-        type = "Bool()";
-        break;
-      case "size_t":
-        type = "Size()";
-        break;
-      case "char":
-        type = "Char()";
-        break;
-      case "uint8_t":
-        type = "Uint8()";
-        break;
-      case "uint8":
-      case "unsigned char":
-        type = "UnsignedChar()";
-        break;
-      case "int8_t":
-        type = "Int8()";
-        break;
-      case "int8":
-      case "signed char":
-        type = "SignedChar()";
-        break;
-      case "int16_t":
-        type = "Int16()";
-        break;
-      case "int16":
-      case "short":
-        type = "Short()";
-        break;
-      case "uint16_t":
-        type = "Uint16()";
-        break;
-      case "uint16":
-      case "unsigned short":
-        type = "UnsignedShort()";
-        break;
-      case "int32_t":
-        type = "Int32()";
-        break;
-      case "int32":
-      case "int":
-        type = "Int()";
-        break;
-      case "uint32_t":
-        type = "Uint32()";
-        break;
-      case "uint32":
-      case "unsigned int":
-        type = "UnsignedInt()";
-        break;
-      case "int64_t":
-        type = "Int64()";
-        break;
-      case "int64":
-      case "long long":
-        type = "LongLong()";
-        break;
-      case "uint64_t":
-        type = "Uint64()";
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "LongLong";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
       case "unsigned long long":
-      case "uint64":
-        type = "UnsignedLongLong()";
-        break;
-      case "intp":
-        type = "LongLong()";
-        break;
       case "uintp":
-        type = "UnsignedLongLong()";
+      case "uint64":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedLongLong";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "uint32_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UInt32";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "uint16_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UInt16";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "int32":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "int32_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int32";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      // case "uint":
+      case "int64_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int64";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "uint64_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UInt64";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "int16_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int16";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "int8_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "Int8";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "uint8_t":
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "UInt8";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
+        break;
+      case "char":
+        if (pointerMatches.isEmpty && arrayMatches.isEmpty) {
+          typeDart = "int";
+          typeFfiC = "Char";
+          typeAnnotation = "$typeFfiC()";
+        } else {
+          Iterable<int> matchCount =
+              Iterable.generate(pointerMatches.length + arrayMatches.length);
+
+          String prefix = matchCount.map((m) => "Pointer<").join();
+          String postfix = matchCount.map((m) => ">").join();
+
+          typeFfiC = "${prefix}Utf8$postfix";
+          typeDart = typeFfiC;
+          typeAnnotation = "";
+        }
+
+        typeFfiDart = typeDart;
+        tokenType = TokenType.string;
+
         break;
       case "intptr_t":
-        type = "IntPtr()";
-        break;
-      case "float":
-        type = "Float()";
+        typeDart = "int";
+        typeFfiDart = typeDart;
+        typeFfiC = "IntPtr";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
       case "double":
-        type = "Double()";
+        typeDart = "double";
+        typeFfiDart = typeDart;
+        typeFfiC = "Double";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
-
-      // arrays
-      case "uint8 [16]":
-        type = "Array<UnsignedChar>(16)";
-        break;
-      case "uint8 [20]":
-        type = "Array<UnsignedChar>(20)";
-        break;
-      case "uint8 [512]":
-        type = "Array<UnsignedChar>(512)";
-        break;
-      case "uint16 [8]":
-        type = "Array<UnsignedShort>(8)";
-        break;
-      case "uint32 [10]":
-        type = "Array<UnsignedInt>(10)";
-        break;
-      case "uint32 [16]":
-        type = "Array<UnsignedInt>(16)";
-        break;
-      case "uint32 [50]":
-        type = "Array<UnsignedInt>(50)";
-        break;
-      case "uint32 [63]":
-        type = "Array<UnsignedInt>(63)";
-        break;
-      case "AppId_t [32]":
-        type = "Array<UnsignedInt>(32)";
-        break;
-      case "PublishedFileId_t [50]":
-      case "CSteamID [50]":
-        type = "Array<UnsignedLongLong>(50)";
-        break;
-      case "float [50]":
-        type = "Array<Float>(50)";
-        break;
-
-      // pointers, structs
-      case "void *":
-      case "const void *":
-      case "bool *":
-      case "size_t *":
-      case "int &":
-      case "int *":
-      case "const int *":
-      case "int32 *":
-      case "const int32 *":
-      case "int64 *":
-      case "uint8 *":
-      case "const uint8 *":
-      case "uint16 *":
-      case "const uint16 *":
-      case "float *":
-      case "double *":
-      case "char *":
-      case "char [4]":
-      case "char [32]":
-      case "char [64]":
-      case "char [128]":
-      case "char [129]":
-      case "char [240]":
-      case "char [256]":
-      case "char [260]":
-      case "char [512]":
-      case "char [1024]":
-      case "char [1025]":
-      case "char [2048]":
-      case "char [8000]":
-      case "const char *":
-      case "char **":
-      case "const char **":
-      case "SteamNetworkingIdentity *":
-      case "const SteamNetworkingIdentity &":
-      case "const SteamNetworkingIdentity *":
-      case "FriendGameInfo_t *":
-      case "const servernetadr_t &":
-      case "SteamNetworkingIPAddr *":
-      case "SteamNetworkingIPAddr &":
-      case "const SteamNetworkingIPAddr *":
-      case "const SteamNetworkingIPAddr &":
-      case "LeaderboardEntry_t *":
-      case "SteamParamStringArray_t *":
-      case "const SteamParamStringArray_t *":
-      case "SteamPartyBeaconLocation_t *":
-      case "P2PSessionState_t *":
-      case "SteamUGCDetails_t *":
-      case "SteamIPAddress_t *":
-      case "const SteamIPAddress_t &":
-      case "SteamNetworkingMessage_t *":
-      case "SteamNetworkingMessage_t **":
-      case "SteamNetworkingMessage_t *const *":
-      case "SteamNetworkPingLocation_t &":
-      case "const SteamNetworkPingLocation_t &":
-      case "SteamItemDetails_t *":
-      case "MatchMakingKeyValuePair_t **":
-      case "gameserveritem_t *":
-      case "gameserveritem_t &":
-      case "SteamNetConnectionInfo_t *":
-      case "SteamNetConnectionRealTimeStatus_t *":
-      case "SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t &":
-      case "SteamNetConnectionRealTimeLaneStatus_t *":
-      case "SteamNetAuthenticationStatus_t *":
-      case "SteamNetworkingFakeIPResult_t *":
-      case "SteamRelayNetworkStatus_t *":
-      case "SteamDatagramRelayAuthTicket *":
-      case "SteamDatagramGameCoordinatorServerLogin *":
-      case "SteamDatagramHostedAddress *":
-      case "CallbackMsg_t *":
-      case "ISteamMatchmaking *":
-      case "ISteamMatchmakingServers *":
-      case "ISteamMatchmakingServerListResponse *":
-      case "ISteamUser *":
-      case "ISteamFriends *":
-      case "ISteamUtils *":
-      case "ISteamUserStats *":
-      case "ISteamGameServerStats *":
-      case "ISteamRemoteStorage *":
-      case "ISteamGameServer *":
-      case "ISteamNetworking *":
-      case "ISteamApps *":
-      case "ISteamScreenshots *":
-      case "ISteamVideo *":
-      case "ISteamGameSearch *":
-      case "ISteamHTTP *":
-      case "ISteamController *":
-      case "ISteamUGC *":
-      case "ISteamAppList *":
-      case "ISteamMusic *":
-      case "ISteamHTMLSurface *":
-      case "ISteamInventory *":
-      case "ISteamParentalSettings *":
-      case "ISteamInput *":
-      case "ISteamRemotePlay *":
-      case "ISteamMatchmakingPlayersResponse *":
-      case "ISteamMatchmakingPingResponse *":
-      case "ISteamNetworkingFakeUDPPort *":
-      case "ISteamNetworkingSignalingRecvContext *":
-      case "ISteamNetworkingConnectionSignaling *":
-      case "ISteamMatchmakingRulesResponse *":
-      case "ISteamMusicRemote *":
-      case "ISteamParties *":
-      case "AppId_t *":
-      case "DepotId_t *":
-      case "uint32 *":
-      case "const uint32 *":
-      case "SNetSocket_t *":
-      case "SteamNetworkingPOPID *":
-      case "HSteamNetConnection *":
-      case "uint64 *":
-      case "ControllerHandle_t *":
-      case "ControllerActionOrigin *":
-      case "ControllerActionSetHandle_t *":
-      case "EControllerActionOrigin *":
-      case "EChatEntryType *":
-      case "EItemPreviewType *":
-      case "ERemoteStorageFilePathType *":
-      case "ERemoteStorageLocalFileChange *":
-      case "ESteamNetworkingConfigDataType *":
-      case "EInputActionOrigin *":
-      case "ESteamNetworkingConfigScope *":
-      case "SteamInventoryResult_t *":
-      case "SteamItemDef_t *":
-      case "const SteamItemDef_t *":
-      case "HSteamPipe *":
-      case "SteamNetworkingErrMsg &":
-      case "CSteamID *":
-      case "CGameID *":
-      case "SteamAPICall_t *":
-      case "InputActionSetHandle_t *":
-      case "PublishedFileId_t *":
-      case "InputHandle_t *":
-      case "SteamItemInstanceID_t *":
-      case "const SteamItemInstanceID_t *":
-      case "SteamDatagramHostedAddress":
-      case "SteamNetworkingIPAddr":
-      case "SteamNetworkingIdentity":
-      case "servernetadr_t":
-      case "SteamUGCDetails_t":
-      case "SteamNetConnectionInfo_t":
-      case "InputAnalogActionData_t":
-      case "InputMotionData_t":
-      case "FriendGameInfo_t":
-      case "SteamIPAddress_t":
-      case "AnalogAction_t":
-      case "InputDigitalActionData_t":
-      case "void (*)(SteamNetworkingMessage_t *)":
-        type = "";
+      case "float":
+        typeDart = "double";
+        typeFfiDart = typeDart;
+        typeFfiC = "Float";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
         break;
 
       // enums
@@ -1090,7 +601,18 @@ extension StringExtensions on String {
       case "EHTMLMouseButton":
       case "EMouseCursor":
       case "EHTMLKeyModifiers":
-        type = "Int32()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = "${typeDart}AliasDart";
+        typeFfiC = "${typeDart}AliasC";
+        typeAnnotation = "Int32()";
+
+        if (pointerMatches.isEmpty && arrayMatches.isEmpty) {
+          fieldAccessor = "$typeDart.fromValue({0})";
+          caller = "{0}.value";
+        }
+
+        tokenType = TokenType.enums;
+
         break;
 
       // typedefs
@@ -1099,10 +621,18 @@ extension StringExtensions on String {
       case "HServerQuery":
       case "SteamItemDef_t":
       case "SteamInventoryResult_t":
-        type = "Int()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "Int";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.typedefs;
         break;
       case "FriendsGroupID_t":
-        type = "Short()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "Short";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.typedefs;
         break;
       case "AppId_t":
       case "DepotId_t":
@@ -1120,12 +650,14 @@ extension StringExtensions on String {
       case "HSteamListenSocket":
       case "HSteamNetPollGroup":
       case "SteamNetworkingPOPID":
-        type = "UnsignedInt()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedInt";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.typedefs;
         break;
       case "CSteamID":
       case "CGameID":
-        type = "UnsignedLongLong()";
-        break;
       case "SteamAPICall_t":
       case "PartyBeaconID_t":
       case "UGCHandle_t":
@@ -1146,617 +678,86 @@ extension StringExtensions on String {
       case "UGCUpdateHandle_t":
       case "SteamItemInstanceID_t":
       case "SteamInventoryUpdateHandle_t":
-        type = "UnsignedLongLong()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "UnsignedLongLong";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.typedefs;
         break;
       case "SteamNetworkingMicroseconds":
-        type = "LongLong()";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "LongLong";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.typedefs;
         break;
       case "HServerListRequest":
-        type = "Pointer<Void>";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "Pointer<Void>";
+        typeAnnotation = "";
+        tokenType = TokenType.typedefs;
         break;
       case "SteamNetworkingErrMsg":
-        type = "Pointer<Utf8>";
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = "Pointer<Utf8>";
+        typeAnnotation = "";
+        tokenType = TokenType.typedefs;
         break;
 
-      default:
-        break;
-    }
-
-    type = type.clearSteamNaming();
-
-    return type;
-  }
-
-  /// convert a steam type to a string that is usable for
-  /// native counterpart ffi functions
-  String toNativeFunctionType() {
-    String type = clearClassAccess();
-    switch (type) {
-      case "void":
-        type = "Void";
-        break;
-      case "bool":
-        type = "Bool";
-        break;
-      case "size_t":
-        type = "Size";
-        break;
-      case "char":
-        type = "Char";
-        break;
-      case "uint8_t":
-        type = "Uint8";
-        break;
-      case "uint8":
-      case "unsigned char":
-        type = "UnsignedChar";
-        break;
-      case "int8_t":
-        type = "Int8";
-        break;
-      case "int8":
-      case "signed char":
-        type = "SignedChar";
-        break;
-      case "int16_t":
-        type = "Int16";
-        break;
-      case "int16":
-      case "short":
-        type = "Short";
-        break;
-      case "uint16_t":
-        type = "Uint16";
-        break;
-      case "uint16":
-      case "unsigned short":
-        type = "UnsignedShort";
-        break;
-      case "int32_t":
-        type = "Int32";
-        break;
-      case "int32":
-      case "int":
-        type = "Int";
-        break;
-      case "uint32_t":
-        type = "Uint32";
-        break;
-      case "uint32":
-      case "unsigned int":
-        type = "UnsignedInt";
-        break;
-      case "int64_t":
-        type = "Int64";
-        break;
-      case "int64":
-      case "long long":
-        type = "LongLong";
-        break;
-      case "uint64_t":
-        type = "Uint64";
-        break;
-      case "unsigned long long":
-      case "uint64":
-        type = "UnsignedLongLong";
-        break;
-      case "intp":
-        type = "LongLong";
-        break;
-      case "uintp":
-        type = "UnsignedLongLong";
-        break;
-      case "intptr_t":
-        type = "IntPtr";
-        break;
-      case "float":
-        type = "Float";
-        break;
-      case "double":
-        type = "Double";
-        break;
-
-      // arrays
-      case "uint8 [16]":
-      case "uint8 [20]":
-      case "uint8 [512]":
-        type = "Array<UnsignedChar>";
-        break;
-      case "uint16 [8]":
-        type = "Array<UnsignedShort>";
-        break;
-      case "uint32 [10]":
-      case "uint32 [16]":
-      case "uint32 [50]":
-      case "uint32 [63]":
-      case "AppId_t [32]":
-        type = "Array<UnsignedInt>";
-        break;
-      case "PublishedFileId_t [50]":
-      case "CSteamID [50]":
-        type = "Array<UnsignedLongLong>";
-        break;
-      case "float [50]":
-        type = "Array<Float>";
-        break;
-
-      // pointers
-      case "void *":
-      case "const void *":
-        type = "Pointer<Void>";
-        break;
-      case "bool *":
-        type = "Pointer<Bool>";
-        break;
-      case "size_t *":
-        type = "Pointer<Size>";
-        break;
-      case "int &":
-      case "int *":
-      case "const int *":
-      case "int32 *":
-      case "const int32 *":
-        type = "Pointer<Int>";
-        break;
-      case "int64 *":
-        type = "Pointer<LongLong>";
-        break;
-      case "uint8 *":
-      case "const uint8 *":
-        type = "Pointer<UnsignedChar>";
-        break;
-      case "uint16 *":
-      case "const uint16 *":
-        type = "Pointer<UnsignedShort>";
-        break;
-      case "float *":
-        type = "Pointer<Float>";
-        break;
-      case "double *":
-        type = "Pointer<Double>";
-        break;
-      case "char *":
-      case "char [4]":
-      case "char [32]":
-      case "char [64]":
-      case "char [128]":
-      case "char [129]":
-      case "char [240]":
-      case "char [256]":
-      case "char [260]":
-      case "char [512]":
-      case "char [1024]":
-      case "char [1025]":
-      case "char [2048]":
-      case "char [8000]":
-      case "const char *":
-        type = "Pointer<Utf8>";
-        break;
-      case "char **":
-      case "const char **":
-        type = "Pointer<Pointer<Utf8>>";
-        break;
-      case "const servernetadr_t &":
-        type = "Pointer<servernetadr>";
-        break;
-      case "SteamNetworkingIPAddr *":
-      case "SteamNetworkingIPAddr &":
-      case "const SteamNetworkingIPAddr *":
-      case "const SteamNetworkingIPAddr &":
-        type = "Pointer<SteamNetworkingIPAddr>";
-        break;
-      case "SteamNetworkingIdentity *":
-      case "const SteamNetworkingIdentity &":
-      case "const SteamNetworkingIdentity *":
-        type = "Pointer<SteamNetworkingIdentity>";
-        break;
-      case "FriendGameInfo_t *":
-        type = "Pointer<FriendGameInfo>";
-        break;
-      case "LeaderboardEntry_t *":
-        type = "Pointer<LeaderboardEntry>";
-        break;
-      case "SteamParamStringArray_t *":
-      case "const SteamParamStringArray_t *":
-        type = "Pointer<SteamParamStringArray>";
-        break;
-      case "SteamPartyBeaconLocation_t *":
-        type = "Pointer<SteamPartyBeaconLocation>";
-        break;
-      case "P2PSessionState_t *":
-        type = "Pointer<P2PSessionState>";
-        break;
-      case "SteamUGCDetails_t *":
-        type = "Pointer<SteamUGCDetails>";
-        break;
-      case "SteamIPAddress_t *":
-      case "const SteamIPAddress_t &":
-        type = "Pointer<SteamIPAddress>";
-        break;
-      case "SteamNetworkingMessage_t *":
-        type = "Pointer<SteamNetworkingMessage>";
-        break;
-      case "SteamNetworkingMessage_t **":
-      case "SteamNetworkingMessage_t *const *":
-        type = "Pointer<Pointer<SteamNetworkingMessage>>";
-        break;
-      case "SteamNetworkPingLocation_t &":
-      case "const SteamNetworkPingLocation_t &":
-        type = "Pointer<SteamNetworkPingLocation>";
-        break;
-      case "SteamItemDetails_t *":
-        type = "Pointer<SteamItemDetails>";
-        break;
-      case "MatchMakingKeyValuePair_t **":
-        type = "Pointer<Pointer<MatchMakingKeyValuePair>>";
-        break;
-      case "gameserveritem_t *":
-      case "gameserveritem_t &":
-        type = "Pointer<GameServerItem>";
-        break;
-      case "SteamNetConnectionInfo_t *":
-        type = "Pointer<SteamNetConnectionInfo>";
-        break;
-      case "SteamNetConnectionRealTimeStatus_t *":
-        type = "Pointer<SteamNetConnectionRealTimeStatus>";
-        break;
-      case "SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t *":
-      case "const SteamNetworkingConfigValue_t &":
-        type = "Pointer<SteamNetworkingConfigValue>";
-        break;
-      case "SteamNetConnectionRealTimeLaneStatus_t *":
-        type = "Pointer<SteamNetConnectionRealTimeLaneStatus>";
-        break;
-      case "SteamNetAuthenticationStatus_t *":
-        type = "Pointer<SteamNetAuthenticationStatus>";
-        break;
-      case "SteamNetworkingFakeIPResult_t *":
-        type = "Pointer<SteamNetworkingFakeIPResult>";
-        break;
-      case "SteamRelayNetworkStatus_t *":
-        type = "Pointer<SteamRelayNetworkStatus>";
-        break;
-      case "SteamDatagramRelayAuthTicket *":
-        type = "Pointer<SteamDatagramRelayAuthTicket>";
-        break;
-      case "SteamDatagramGameCoordinatorServerLogin *":
-        type = "Pointer<SteamDatagramGameCoordinatorServerLogin>";
-        break;
-      case "SteamDatagramHostedAddress *":
-        type = "Pointer<SteamDatagramHostedAddress>";
-        break;
-      case "CallbackMsg_t *":
-        type = "Pointer<CallbackMsg>";
-        break;
-      case "ISteamMatchmaking *":
-        type = "Pointer<ISteamMatchmaking>";
-        break;
-      case "ISteamMatchmakingServers *":
-        type = "Pointer<ISteamMatchmakingServers>";
-        break;
-      case "ISteamMatchmakingServerListResponse *":
-        type = "Pointer<ISteamMatchmakingServerListResponse>";
-        break;
-      case "ISteamUser *":
-        type = "Pointer<ISteamUser>";
-        break;
-      case "ISteamFriends *":
-        type = "Pointer<ISteamFriends>";
-        break;
-      case "ISteamUtils *":
-        type = "Pointer<ISteamUtils>";
-        break;
-      case "ISteamUserStats *":
-        type = "Pointer<ISteamUserStats>";
-        break;
-      case "ISteamGameServerStats *":
-        type = "Pointer<ISteamGameServerStats>";
-        break;
-      case "ISteamRemoteStorage *":
-        type = "Pointer<ISteamRemoteStorage>";
-        break;
-      case "ISteamGameServer *":
-        type = "Pointer<ISteamGameServer>";
-        break;
-      case "ISteamNetworking *":
-        type = "Pointer<ISteamNetworking>";
-        break;
-      case "ISteamApps *":
-        type = "Pointer<ISteamApps>";
-        break;
-      case "ISteamScreenshots *":
-        type = "Pointer<ISteamScreenshots>";
-        break;
-      case "ISteamVideo *":
-        type = "Pointer<ISteamVideo>";
-        break;
-      case "ISteamGameSearch *":
-        type = "Pointer<ISteamGameSearch>";
-        break;
-      case "ISteamHTTP *":
-        type = "Pointer<ISteamHTTP>";
-        break;
-      case "ISteamController *":
-        type = "Pointer<ISteamController>";
-        break;
-      case "ISteamUGC *":
-        type = "Pointer<ISteamUGC>";
-        break;
-      case "ISteamAppList *":
-        type = "Pointer<ISteamAppList>";
-        break;
-      case "ISteamMusic *":
-        type = "Pointer<ISteamMusic>";
-        break;
-      case "ISteamHTMLSurface *":
-        type = "Pointer<ISteamHTMLSurface>";
-        break;
-      case "ISteamInventory *":
-        type = "Pointer<ISteamInventory>";
-        break;
-      case "ISteamParentalSettings *":
-        type = "Pointer<ISteamParentalSettings>";
-        break;
-      case "ISteamInput *":
-        type = "Pointer<ISteamInput>";
-        break;
-      case "ISteamRemotePlay *":
-        type = "Pointer<ISteamRemotePlay>";
-        break;
-      case "ISteamMatchmakingPlayersResponse *":
-        type = "Pointer<ISteamMatchmakingPlayersResponse>";
-        break;
-      case "ISteamMatchmakingPingResponse *":
-        type = "Pointer<ISteamMatchmakingPingResponse>";
-        break;
-      case "ISteamNetworkingFakeUDPPort *":
-        type = "Pointer<ISteamNetworkingFakeUDPPort>";
-        break;
-      case "ISteamNetworkingSignalingRecvContext *":
-        type = "Pointer<ISteamNetworkingSignalingRecvContext>";
-        break;
-      case "ISteamNetworkingConnectionSignaling *":
-        type = "Pointer<ISteamNetworkingConnectionSignaling>";
-        break;
-      case "ISteamMatchmakingRulesResponse *":
-        type = "Pointer<ISteamMatchmakingRulesResponse>";
-        break;
-      case "ISteamMusicRemote *":
-        type = "Pointer<ISteamMusicRemote>";
-        break;
-      case "ISteamParties *":
-        type = "Pointer<ISteamParties>";
-        break;
-      case "AppId_t *":
-      case "DepotId_t *":
-      case "uint32 *":
-      case "const uint32 *":
-      case "SNetSocket_t *":
-      case "SteamNetworkingPOPID *":
-      case "HSteamNetConnection *":
-        type = "Pointer<UnsignedInt>";
-        break;
-      case "uint64 *":
-      case "ControllerHandle_t *":
-      case "ControllerActionSetHandle_t *":
-      case "CSteamID *":
-      case "CGameID *":
-      case "SteamAPICall_t *":
-      case "InputActionSetHandle_t *":
-      case "PublishedFileId_t *":
-      case "InputHandle_t *":
-      case "SteamItemInstanceID_t *":
-      case "const SteamItemInstanceID_t *":
-        type = "Pointer<UnsignedLongLong>";
-        break;
-      case "ControllerActionOrigin *":
-      case "EControllerActionOrigin *":
-      case "EChatEntryType *":
-      case "EItemPreviewType *":
-      case "ERemoteStorageFilePathType *":
-      case "ERemoteStorageLocalFileChange *":
-      case "ESteamNetworkingConfigDataType *":
-      case "EInputActionOrigin *":
-      case "ESteamNetworkingConfigScope *":
-      case "SteamInventoryResult_t *":
-      case "SteamItemDef_t *":
-      case "const SteamItemDef_t *":
-      case "HSteamPipe *":
-        type = "Pointer<Int32>";
-        break;
-      case "SteamNetworkingErrMsg &":
-        type = "Pointer<Pointer<Utf8>>";
-        break;
-      case "void (*)(SteamNetworkingMessage_t *)":
-        type =
+      //functions
+      // TODO pointers gets lost so we can not distinguish SteamNetworkingMessage_t vs SteamNetworkingMessage_t *
+      case "void ()(SteamNetworkingMessage_t )":
+        typeDart =
             "Pointer<NativeFunction<Pointer<Void> Function(Pointer<SteamNetworkingMessage>)>>";
+        typeFfiDart = typeDart;
+        typeFfiC = typeDart;
+        typeAnnotation = "";
+        tokenType = TokenType.function;
         break;
 
-      // enums
-      case "EFailureType":
-      case "PlayerAcceptState_t":
-      case "ESteamIPType":
-      case "EUniverse":
-      case "EResult":
-      case "EVoiceResult":
-      case "EDenyReason":
-      case "EBeginAuthSessionResult":
-      case "EAuthSessionResponse":
-      case "EUserHasLicenseForAppResult":
-      case "EAccountType":
-      case "EChatEntryType":
-      case "EChatRoomEnterResponse":
-      case "EChatSteamIDInstanceFlags":
-      case "ENotificationPosition":
-      case "EBroadcastUploadResult":
-      case "EMarketNotAllowedReasonFlags":
-      case "EDurationControlProgress":
-      case "EDurationControlNotification":
-      case "EDurationControlOnlineState":
-      case "EGameSearchErrorCode_t":
-      case "EPlayerResult_t":
-      case "ESteamIPv6ConnectivityProtocol":
-      case "ESteamIPv6ConnectivityState":
-      case "EFriendRelationship":
-      case "EPersonaState":
-      case "EFriendFlags":
-      case "EUserRestriction":
-      case "EOverlayToStoreFlag":
-      case "EActivateGameOverlayToWebPageMode":
-      case "EPersonaChange":
-      case "ESteamAPICallFailure":
-      case "EGamepadTextInputMode":
-      case "EGamepadTextInputLineMode":
-      case "EFloatingGamepadTextInputMode":
-      case "ETextFilteringContext":
-      case "ECheckFileSignature":
-      case "EMatchMakingServerResponse":
-      case "ELobbyType":
-      case "ELobbyComparison":
-      case "ELobbyDistanceFilter":
-      case "EChatMemberStateChange":
-      case "ESteamPartyBeaconLocationType":
-      case "ESteamPartyBeaconLocationData":
-      case "ERemoteStoragePlatform":
-      case "ERemoteStoragePublishedFileVisibility":
-      case "EWorkshopFileType":
-      case "EWorkshopVote":
-      case "EWorkshopFileAction":
-      case "EWorkshopEnumerationType":
-      case "EWorkshopVideoProvider":
-      case "EUGCReadAction":
-      case "ERemoteStorageLocalFileChange":
-      case "ERemoteStorageFilePathType":
-      case "ELeaderboardDataRequest":
-      case "ELeaderboardSortMethod":
-      case "ELeaderboardDisplayType":
-      case "ELeaderboardUploadScoreMethod":
-      case "ERegisterActivationCodeResult":
-      case "EP2PSessionError":
-      case "EP2PSend":
-      case "ESNetSocketState":
-      case "ESNetSocketConnectionType":
-      case "EVRScreenshotType":
-      case "AudioPlayback_Status":
-      case "EHTTPMethod":
-      case "EHTTPStatusCode":
-      case "EInputSourceMode":
-      case "EInputActionOrigin":
-      case "EXboxOrigin":
-      case "ESteamControllerPad":
-      case "EControllerHapticLocation":
-      case "EControllerHapticType":
-      case "ESteamInputType":
-      case "ESteamInputConfigurationEnableType":
-      case "ESteamInputLEDFlag":
-      case "ESteamInputGlyphSize":
-      case "ESteamInputGlyphStyle":
-      case "ESteamInputActionEventType":
-      case "EControllerActionOrigin":
-      case "ESteamControllerLEDFlag":
-      case "EUGCMatchingUGCType":
-      case "EUserUGCList":
-      case "EUserUGCListSortOrder":
-      case "EUGCQuery":
-      case "EItemUpdateStatus":
-      case "EItemState":
-      case "EItemStatistic":
-      case "EItemPreviewType":
-      case "ESteamItemFlags":
-      case "EParentalFeature":
-      case "ESteamDeviceFormFactor":
-      case "ESteamNetworkingAvailability":
-      case "ESteamNetworkingIdentityType":
-      case "ESteamNetworkingFakeIPType":
-      case "ESteamNetworkingConnectionState":
-      case "ESteamNetConnectionEnd":
-      case "ESteamNetworkingConfigScope":
-      case "ESteamNetworkingConfigDataType":
-      case "ESteamNetworkingConfigValue":
-      case "ESteamNetworkingGetConfigValueResult":
-      case "ESteamNetworkingSocketsDebugOutputType":
-      case "EServerMode":
-      case "EHTMLMouseButton":
-      case "EMouseCursor":
-      case "EHTMLKeyModifiers":
-        type = "Int32";
-        break;
-
-      // typedefs
-      case "HSteamPipe":
-      case "HSteamUser":
-      case "HServerQuery":
-      case "SteamItemDef_t":
-      case "SteamInventoryResult_t":
-        type = "Int";
-        break;
-      case "FriendsGroupID_t":
-        type = "Short";
-        break;
-      case "AppId_t":
-      case "DepotId_t":
-      case "RTime32":
-      case "AccountID_t":
-      case "HAuthTicket":
-      case "SNetSocket_t":
-      case "SNetListenSocket_t":
-      case "ScreenshotHandle":
-      case "HTTPRequestHandle":
-      case "HTTPCookieContainerHandle":
-      case "HHTMLBrowser":
-      case "RemotePlaySessionID_t":
-      case "HSteamNetConnection":
-      case "HSteamListenSocket":
-      case "HSteamNetPollGroup":
-      case "SteamNetworkingPOPID":
-        type = "UnsignedInt";
-        break;
-      case "CSteamID":
-      case "CGameID":
-        type = "UnsignedLongLong";
-        break;
-      case "SteamAPICall_t":
-      case "PartyBeaconID_t":
-      case "UGCHandle_t":
-      case "PublishedFileUpdateHandle_t":
-      case "PublishedFileId_t":
-      case "UGCFileWriteStreamHandle_t":
-      case "SteamLeaderboard_t":
-      case "SteamLeaderboardEntries_t":
-      case "InputHandle_t":
-      case "InputActionSetHandle_t":
-      case "InputDigitalActionHandle_t":
-      case "InputAnalogActionHandle_t":
-      case "ControllerHandle_t":
-      case "ControllerActionSetHandle_t":
-      case "ControllerDigitalActionHandle_t":
-      case "ControllerAnalogActionHandle_t":
-      case "UGCQueryHandle_t":
-      case "UGCUpdateHandle_t":
-      case "SteamItemInstanceID_t":
-      case "SteamInventoryUpdateHandle_t":
-        type = "UnsignedLongLong";
-        break;
-      case "SteamNetworkingMicroseconds":
-        type = "LongLong";
-        break;
-      case "HServerListRequest":
-        type = "Pointer<Void>";
-        break;
-      case "SteamNetworkingErrMsg":
-        type = "Pointer<Utf8>";
-        break;
-
-      // structs
+      // structs or interfaces
       default:
-        break;
-      // return type.clearSteamNaming();
+        typeDart = type.clearSteamNaming();
+        typeFfiDart = typeDart;
+        typeFfiC = typeDart;
+        typeAnnotation = "";
+        tokenType = TokenType.structOrInterface;
     }
 
-    type = type.clearSteamNaming();
+    if (pointerMatches.isNotEmpty &&
+        !(tokenType == TokenType.function || tokenType == TokenType.string)) {
+      String prefix = pointerMatches.map((m) => "Pointer<").join();
+      String postfix = pointerMatches.map((m) => ">").join();
 
-    return type;
+      typeFfiC = "$prefix$typeFfiC$postfix";
+      typeDart = typeFfiC;
+      typeFfiDart = typeFfiC;
+      typeAnnotation = "";
+    } else if (arrayMatches.isNotEmpty &&
+        !(tokenType == TokenType.function || tokenType == TokenType.string)) {
+      String prefix = arrayMatches.map((m) => "Array<").join();
+      String postfix = arrayMatches.map((e) => ">").join();
+      String arrayDimensions = arrayMatches.map((m) => m.group(1)!).join(",");
+
+      typeFfiC = "$prefix$typeFfiC$postfix";
+      typeDart = typeFfiC;
+      typeFfiDart = typeFfiC;
+      typeAnnotation = "$typeFfiC($arrayDimensions)";
+    }
+
+    Token token = Token(
+      typeDart: typeDart,
+      typeFfiDart: typeFfiDart,
+      typeFfiC: typeFfiC,
+      typeAnnotation: typeAnnotation,
+      fieldAccessor: fieldAccessor,
+      caller: caller,
+      tokenType: tokenType,
+    );
+
+    return token;
   }
 
   /// appends a underscore to a cleaned steam keyword if
@@ -1779,7 +780,7 @@ extension StringExtensions on String {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) {
-    String packageName;
+    String packageName = "";
     if (enumSet.contains(this)) {
       packageName =
           "${relativeness}enums/e${this.clearEnumName().toFileName()}.dart";
@@ -1790,8 +791,6 @@ extension StringExtensions on String {
     } else if (interfaceSet.contains(this)) {
       packageName =
           "${relativeness}interfaces/i${this.clearInterfaceName().toFileName()}.dart";
-    } else {
-      packageName = "";
     }
 
     return packageName;

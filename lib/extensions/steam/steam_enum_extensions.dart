@@ -11,9 +11,9 @@ import "steam_enum_value_extensions.dart";
 /// Extensions on [SteamEnum] to generate ffi code
 extension SteamEnumExtensions on SteamEnum {
   /// Generates necessary code for a [SteamEnum]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
     values.sort((a, b) => a.value.compareTo(b.value));
 
     String firstKey = values.first.name;
@@ -33,24 +33,61 @@ extension SteamEnumExtensions on SteamEnum {
     String correctedName = name.clearSteamNaming();
 
     fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeImport(packageName: "dart:ffi");
     fileSink.writeTypedef(
-      alias: correctedName,
+      alias: "${correctedName}AliasDart",
       of: "int",
     );
 
+    fileSink.writeTypedef(
+      alias: "${correctedName}AliasC",
+      of: "Int32",
+    );
+
     fileSink.writeEnum(
-      enumName: "${correctedName}Enum",
+      enumName: correctedName,
     );
     fileSink.writeStartBlock();
 
     for (SteamEnumValue enumValue
         in values.where((val) => !val.name.contains("Force32Bit"))) {
-      await enumValue.generate(
+      enumValue.generate(
         fileSink: fileSink,
         enumName: correctedName,
         nameIndex: indexOfCommonPartEnd,
       );
     }
+
+    fileSink.writeln(";");
+
+    fileSink.writeln("final int value;\n");
+
+    fileSink.writeln("const $correctedName(this.value);\n");
+
+    fileSink.write("factory $correctedName.fromValue(int value)");
+
+    fileSink.writeStartBlock();
+
+    fileSink.write("switch (value)");
+
+    fileSink.writeStartBlock();
+
+    for (SteamEnumValue enumValue
+        in values.where((val) => !val.name.contains("Force32Bit"))) {
+      enumValue.generateSwitch(
+        fileSink: fileSink,
+        enumName: correctedName,
+        nameIndex: indexOfCommonPartEnd,
+      );
+    }
+
+    fileSink.write(
+      "default:throw \"Unknown value for '$correctedName'. The value was: '\$value'\";",
+    );
+
+    fileSink.writeEndBlock();
+
+    fileSink.writeEndBlock();
 
     fileSink.writeEndBlock();
   }
@@ -71,7 +108,7 @@ extension SteamEnumExtensions on SteamEnum {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    await generate(
+    generate(
       fileSink: fileSink,
     );
 

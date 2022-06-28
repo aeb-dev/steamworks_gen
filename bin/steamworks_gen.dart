@@ -72,7 +72,8 @@ Future<void> main(List<String> arguments) async {
   await steamworks_gen.generate(argResults.rest.first, output, target);
 
   // double format call required because of 'require_trailing_commas'
-  await Process.run("dart", ["pub", "add", "dart pub add ffi:1.2.0-dev.0"]);
+  await Process.run("dart", ["pub", "remove", "ffi"]);
+  await Process.run("dart", ["pub", "add", "ffi"]);
   await Process.run("dart", ["pub", "get"]);
   await Process.run("dart", ["format", "."], workingDirectory: output);
   await Process.run("dart", ["fix", "--apply"], workingDirectory: output);

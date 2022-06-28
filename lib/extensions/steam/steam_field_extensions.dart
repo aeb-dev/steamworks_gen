@@ -5,17 +5,18 @@ import "package:recase/recase.dart";
 import "../../steam/steam_field.dart";
 import "../file_extensions.dart";
 import "../string_extensions.dart";
+import "../token.dart";
 
 /// Extensions on [SteamField] to generate ffi code
 extension SteamFieldExtensions on SteamField {
   /// Generates necessary import for a [SteamField]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     String importPath =
         type.clearClassAccess().clearPointerOrConst().trim().importPath(
               enumSet: enumSet,
@@ -30,30 +31,34 @@ extension SteamFieldExtensions on SteamField {
   }
 
   /// Generates necessary code for a [SteamField]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
     String correctedFieldName = name.clearSteamNaming().camelCase;
 
-    String nativeType = type.toNativeType();
-    String annotation = type.toNativeTypeAnnotation();
+    Token token = type.toToken();
 
     fileSink.writeStructField(
       fieldName: correctedFieldName,
-      fieldType: nativeType,
-      annotation: annotation,
+      fieldType: token.typeFfiDart,
+      annotation: token.typeAnnotation,
       isPrivate: private,
     );
   }
 
   /// Generates necessary code for accessing a field over .ref
-  Future<void> generateFieldAccess({
+  void generateFieldAccess({
     required IOSink fileSink,
-  }) async {
+  }) {
     String correctedFieldName = name.clearSteamNaming().camelCase;
 
+    Token token = type.toToken();
+
+    String fieldAccessor =
+        token.fieldAccessor.replaceAll("{0}", "ref.$correctedFieldName");
+
     fileSink.writeln(
-      "${type.toNativeType()} get $correctedFieldName => ref.$correctedFieldName;\n",
+      "${token.typeDart} get $correctedFieldName => $fieldAccessor;\n",
     );
   }
 }
@@ -61,15 +66,15 @@ extension SteamFieldExtensions on SteamField {
 /// Extensions on [Iterable<SteamField>] to generate ffi code
 extension SteamFieldIterableExtensions on Iterable<SteamField> {
   /// Generates respective import for each [SteamField]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     for (SteamField field in this) {
-      await field.generateImport(
+      field.generateImport(
         fileSink: fileSink,
         enumSet: enumSet,
         structSet: structSet,
@@ -80,11 +85,11 @@ extension SteamFieldIterableExtensions on Iterable<SteamField> {
   }
 
   /// Generates respective code for each [SteamField]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
     for (SteamField field in this) {
-      await field.generate(
+      field.generate(
         fileSink: fileSink,
       );
     }
@@ -92,11 +97,11 @@ extension SteamFieldIterableExtensions on Iterable<SteamField> {
 
   /// Generates necessary code for accessing a field over .ref
   /// for each [SteamField]
-  Future<void> generateFieldAccess({
+  void generateFieldAccess({
     required IOSink fileSink,
-  }) async {
+  }) {
     for (SteamField field in where((f) => !f.private)) {
-      await field.generateFieldAccess(
+      field.generateFieldAccess(
         fileSink: fileSink,
       );
     }

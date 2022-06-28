@@ -8,20 +8,20 @@ import "../string_extensions.dart";
 /// Extensions on [SteamAccessor] to generate ffi code
 extension SteamAccessorExtensions on SteamAccessor {
   /// Generates necessary code for lookup functions for [SteamAccessor]
-  Future<void> generateLookup({
+  void generateLookup({
     required IOSink fileSink,
     required String interface,
-  }) async {
+  }) {
     fileSink.writeln(
       "final _${friendlyName.camelCase} = dl.lookupFunction<Pointer<$interface> Function(),Pointer<$interface> Function()>(\"$nameFlat\");\n",
     );
   }
 
   /// Generates necessary code for a [SteamAccessor]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String interface,
-  }) async {
+  }) {
     String instance;
     switch (kind) {
       case "user":
@@ -57,12 +57,12 @@ extension SteamAccessorExtensions on SteamAccessor {
 /// Extensions on [Iterable<SteamAccessor>] to generate ffi code
 extension SteamAccessorIterableExtensions on Iterable<SteamAccessor> {
   /// Generates respective lookup function code for each [SteamAccessor]
-  Future<void> generateLookup({
+  void generateLookup({
     required IOSink fileSink,
     required String interface,
-  }) async {
+  }) {
     for (SteamAccessor accessor in this) {
-      await accessor.generateLookup(
+      accessor.generateLookup(
         fileSink: fileSink,
         interface: interface,
       );
@@ -70,12 +70,12 @@ extension SteamAccessorIterableExtensions on Iterable<SteamAccessor> {
   }
 
   /// Generates respective code for each [SteamAccessor]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String interface,
-  }) async {
+  }) {
     for (SteamAccessor accessor in this) {
-      await accessor.generate(
+      accessor.generate(
         fileSink: fileSink,
         interface: interface,
       );

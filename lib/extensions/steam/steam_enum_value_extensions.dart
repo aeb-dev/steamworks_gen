@@ -8,11 +8,39 @@ import "../string_extensions.dart";
 /// Extensions on [SteamEnumValue] to generate ffi code
 extension SteamEnumValueExtensions on SteamEnumValue {
   /// Generates necessary code for a [SteamEnumValue]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String enumName,
     required int nameIndex,
-  }) async {
+  }) {
+    String valueName = _getValueName(
+      enumName: enumName,
+      nameIndex: nameIndex,
+    );
+
+    fileSink.write("$valueName($value),");
+  }
+
+  /// Generated necessary code for factory consturctor of [SteamEnumValue]
+  /// in order to generate enum from a value
+  void generateSwitch({
+    required IOSink fileSink,
+    required String enumName,
+    required int nameIndex,
+  }) {
+    String valueName = _getValueName(
+      enumName: enumName,
+      nameIndex: nameIndex,
+    );
+
+    fileSink.write("case $value:");
+    fileSink.write("return $enumName.$valueName;");
+  }
+
+  String _getValueName({
+    required String enumName,
+    required int nameIndex,
+  }) {
     String valueName = name.substring(nameIndex).clearSteamNaming();
     int? valueAsInt = int.tryParse(valueName[0]);
     if (valueAsInt != null) {
@@ -34,7 +62,6 @@ extension SteamEnumValueExtensions on SteamEnumValue {
       }
     }
 
-    valueName = valueName.camelCase.fixDartConflict();
-    fileSink.write("static const int $valueName = $value;");
+    return valueName.camelCase.fixDartConflict();
   }
 }

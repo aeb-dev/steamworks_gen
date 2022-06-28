@@ -11,12 +11,12 @@ import "steam_method_extensions.dart";
 /// Extensions on [SteamInitializer] to generate ffi code
 extension SteamInitializerExtensions on SteamInitializer {
   /// Generates necessary code for a [SteamInitializer]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
-  }) async {
+  }) {
     fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(
       packageName: "dart:ffi",
@@ -25,7 +25,7 @@ extension SteamInitializerExtensions on SteamInitializer {
       packageName: "package:ffi/ffi.dart",
     );
 
-    await methods.generateImport(
+    methods.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,
@@ -41,7 +41,7 @@ extension SteamInitializerExtensions on SteamInitializer {
 
     String correctedName = name.clearSteamNaming().pascalCase;
 
-    await methods.generateLookup(
+    methods.generateLookup(
       fileSink: fileSink,
       owner: correctedName,
       isStatic: true,
@@ -52,16 +52,13 @@ extension SteamInitializerExtensions on SteamInitializer {
     );
     fileSink.writeStartBlock();
 
-    await methods.generate(
+    methods.generate(
       fileSink: fileSink,
       owner: correctedName,
       isStatic: true,
     );
 
     fileSink.writeEndBlock();
-
-    await fileSink.flush();
-    await fileSink.close();
   }
 
   /// Generates necessary file and code for a [SteamInitializer]
@@ -83,7 +80,7 @@ extension SteamInitializerExtensions on SteamInitializer {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    await generate(
+    generate(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,

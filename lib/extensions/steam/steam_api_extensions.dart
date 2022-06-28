@@ -481,4 +481,60 @@ extension SteamApiExtensions on SteamApi {
       callbackStructSet: callbackStructSet,
     );
   }
+
+  /// Generates utility functions for ffi
+  // Future<void> generateUtility({
+  //   required String path,
+  //   required IOSink exportSink,
+  // }) async {
+  //   String filePath = p.join(path, "utils.dart");
+  //   exportSink.writeExport(
+  //     path: "utils.dart",
+  //   );
+
+  //   File file = File(filePath);
+  //   await file.create(recursive: true);
+
+  //   IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+
+  //   fileSink.writeImport(
+  //     packageName: "dart:ffi",
+  //   );
+  //   fileSink.writeImport(
+  //     packageName: "package:ffi/ffi.dart",
+  //   );
+
+  //   fileSink.write(
+  //     """extension PointerToStringList on Pointer<Pointer<Utf8>> {
+  //     List<String> toDartStringList({
+  //         required int length,
+  //       }) =>
+  //           Iterable<int>.generate(length)
+  //               .map((index) => this[index].toDartString())
+  //               .toList();
+  //     }
+
+  //     extension StringListToPointer on Iterable<String> {
+  //       Pointer<Pointer<Utf8>> toNativeUtf8List() {
+  //         List<Pointer<Utf8>> utf8PointerList =
+  //             this.map((str) => str.toNativeUtf8()).toList();
+
+  //         Pointer<Pointer<Utf8>> pointerPointer =
+  //             malloc.allocate(sizeOf<Pointer<Utf8>>() * utf8PointerList.length);
+
+  //         int index = 0;
+  //         for (String _ in this) {
+  //           pointerPointer[index] = utf8PointerList[index];
+  //           index += 1;
+  //         }
+
+  //         return pointerPointer;
+  //       }
+  //     }
+  //     """,
+  //   );
+
+  //   await fileSink.flush();
+  //   await fileSink.close();
+  // }
 }

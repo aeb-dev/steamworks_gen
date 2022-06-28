@@ -5,16 +5,18 @@ import "package:path/path.dart" as p;
 import "../../steam/steam_typedef.dart";
 import "../file_extensions.dart";
 import "../string_extensions.dart";
+import "../token.dart";
 
 /// Extensions on [SteamTypedef] to generate ffi code
 extension SteamTypedefExtensions on SteamTypedef {
   /// Generates necessary code for a [SteamTypedef]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-  }) async {
+  }) {
+    Token token = type.toToken();
     fileSink.writeTypedef(
-      alias: typedef.clearSteamNaming(),
-      of: type.toDartType(),
+      alias: name.clearSteamNaming(),
+      of: token.typeDart,
     );
   }
 }
@@ -77,8 +79,8 @@ extension SteamTypedefIterableExtensions on Iterable<SteamTypedef> {
     ); // write CGameID
 
     for (SteamTypedef steamTypedef
-        in where((item) => !_typedefSkipList.contains(item.typedef))) {
-      await steamTypedef.generate(
+        in where((item) => !_typedefSkipList.contains(item.name))) {
+      steamTypedef.generate(
         fileSink: fileSink,
       );
     }

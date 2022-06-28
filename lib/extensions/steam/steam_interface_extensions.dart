@@ -13,13 +13,13 @@ import "steam_method_extensions.dart";
 /// Extensions on [SteamInterface] to generate ffi code
 extension SteamInterfaceExtensions on SteamInterface {
   /// Generates necessary code for a [SteamInterface]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     fileSink.writeln("// ignore_for_file: public_member_api_docs");
     fileSink.writeImport(
       packageName: "dart:ffi",
@@ -34,7 +34,7 @@ extension SteamInterfaceExtensions on SteamInterface {
       packageName: "../typedefs.dart",
     );
 
-    await fields.generateImport(
+    fields.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,
@@ -42,7 +42,7 @@ extension SteamInterfaceExtensions on SteamInterface {
       interfaceSet: interfaceSet,
     );
 
-    await methods.generateImport(
+    methods.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,
@@ -52,7 +52,7 @@ extension SteamInterfaceExtensions on SteamInterface {
 
     String correctedName = name.clearSteamNaming();
 
-    await accessors.generateLookup(
+    accessors.generateLookup(
       fileSink: fileSink,
       interface: correctedName,
     );
@@ -63,19 +63,19 @@ extension SteamInterfaceExtensions on SteamInterface {
     );
     fileSink.writeStartBlock();
 
-    await accessors.generate(
+    accessors.generate(
       fileSink: fileSink,
       interface: correctedName,
     );
 
     fileSink.writeEndBlock();
 
-    await fields.generate(
+    fields.generate(
       fileSink: fileSink,
     );
 
     if (methods.isNotEmpty) {
-      await methods.generateLookup(
+      methods.generateLookup(
         fileSink: fileSink,
         owner: correctedName,
       );
@@ -86,7 +86,7 @@ extension SteamInterfaceExtensions on SteamInterface {
       );
       fileSink.writeStartBlock();
 
-      await methods.generate(
+      methods.generate(
         fileSink: fileSink,
         owner: correctedName,
       );
@@ -119,7 +119,7 @@ extension SteamInterfaceExtensions on SteamInterface {
     await file.create(recursive: true);
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
-    await generate(
+    generate(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,

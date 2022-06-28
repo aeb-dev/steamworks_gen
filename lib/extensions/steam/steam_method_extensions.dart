@@ -5,6 +5,7 @@ import "package:recase/recase.dart";
 import "../../steam/steam_method.dart";
 import "../file_extensions.dart";
 import "../string_extensions.dart";
+import "../token.dart";
 import "steam_param_extensions.dart";
 
 /// Extensions on [SteamMethod] to generate ffi code
@@ -26,13 +27,13 @@ extension SteamMethodExtensions on SteamMethod {
       nameFlat.contains(RegExp(r"(deprecated|DEPRECATED|Deprecated)")));
 
   /// Generates necessary import for a [SteamMethod]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     String importPath =
         returnType.clearClassAccess().clearPointerOrConst().trim().importPath(
               enumSet: enumSet,
@@ -47,69 +48,70 @@ extension SteamMethodExtensions on SteamMethod {
   }
 
   /// Generates necessary code for lookup functions for [SteamMethod]
-  Future<void> generateLookup({
+  void generateLookup({
     required IOSink fileSink,
     required String owner,
     bool isStatic = false,
-  }) async {
+  }) {
     fileSink.write("final _$friendlyName = dl.lookupFunction<");
 
-    fileSink.write("${returnType.toNativeFunctionType()} Function(");
+    Token token = returnType.toToken();
+
+    fileSink.write("${token.typeFfiC} Function(");
 
     if (!isStatic) {
       fileSink.write("Pointer<$owner>,");
     }
 
-    await params.generate(
+    params.generate(
       fileSink: fileSink,
-      withFunctionType: true,
+      withFunctionC: true,
     );
 
     fileSink.write("),");
 
-    fileSink.write("${returnType.toNativeType()} Function(");
+    fileSink.write("${token.typeFfiDart} Function(");
     if (!isStatic) {
       fileSink.write("Pointer<$owner>,");
     }
 
-    await params.generate(
+    params.generate(
       fileSink: fileSink,
-      withType: true,
+      withFunctionDart: true,
     );
 
     fileSink.writeln(")>(\"$nameFlat\");\n");
   }
 
   /// Generates necessary code for calling lookup functions for [SteamMethod]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String owner,
     bool isStatic = false,
-  }) async {
+  }) {
     if (isStatic) {
       fileSink.write("static ");
     }
-    fileSink.write("${returnType.toNativeType()} $friendlyName(");
 
-    await params.generate(
+    Token token = returnType.toToken();
+    fileSink.write("${token.typeDart} $friendlyName(");
+
+    params.generate(
       fileSink: fileSink,
-      withType: true,
+      withDart: true,
       withName: true,
     );
 
     fileSink.write(") => ");
 
-    fileSink.write("_$friendlyName.call(");
-    if (!isStatic) {
-      fileSink.write("this,");
-    }
-
-    await params.generate(
-      fileSink: fileSink,
-      withName: true,
+    fileSink.write(
+      token.fieldAccessor.replaceAll(
+        "{0}",
+        "_$friendlyName.call(${!isStatic ? 'this,' : ''}${params.generateString(withCaller: true)})",
+      ),
     );
 
-    fileSink.writeln(");\n");
+    fileSink.writeln(";\n");
   }
 
   /// darty name of a steam method name
@@ -132,15 +134,15 @@ extension SteamMethodExtensions on SteamMethod {
 /// Extensions on [Iterable<SteamMethod>] to generate ffi code
 extension SteamMethodIterableExtensions on Iterable<SteamMethod> {
   /// Generates respective import code for each [SteamMethod]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     for (SteamMethod steamMethod in this.where((sm) => sm._shouldCreate())) {
-      await steamMethod.generateImport(
+      steamMethod.generateImport(
         fileSink: fileSink,
         enumSet: enumSet,
         structSet: structSet,
@@ -148,7 +150,7 @@ extension SteamMethodIterableExtensions on Iterable<SteamMethod> {
         interfaceSet: interfaceSet,
       );
 
-      await steamMethod.params.generateImport(
+      steamMethod.params.generateImport(
         fileSink: fileSink,
         enumSet: enumSet,
         structSet: structSet,
@@ -159,13 +161,13 @@ extension SteamMethodIterableExtensions on Iterable<SteamMethod> {
   }
 
   /// Generates respective lookup function code for each [SteamMethod]
-  Future<void> generateLookup({
+  void generateLookup({
     required IOSink fileSink,
     required String owner,
     bool isStatic = false,
-  }) async {
+  }) {
     for (SteamMethod steamMethod in this.where((sm) => sm._shouldCreate())) {
-      await steamMethod.generateLookup(
+      steamMethod.generateLookup(
         fileSink: fileSink,
         owner: owner,
         isStatic: isStatic,
@@ -174,13 +176,13 @@ extension SteamMethodIterableExtensions on Iterable<SteamMethod> {
   }
 
   /// Generates respective code for calling lookup function code for each [SteamMethod]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String owner,
     bool isStatic = false,
-  }) async {
+  }) {
     for (SteamMethod steamMethod in this.where((sm) => sm._shouldCreate())) {
-      await steamMethod.generate(
+      steamMethod.generate(
         fileSink: fileSink,
         owner: owner,
         isStatic: isStatic,

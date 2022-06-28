@@ -14,25 +14,27 @@ import "steam_method_extensions.dart";
 /// Extensions on [SteamStruct] to generate ffi code
 extension SteamStructExtensions on SteamStruct {
   /// Generates necessary code for a [SteamStruct]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
     required String target,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
-  }) async {
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+  }) {
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs, packed_nesting_non_packed",
+    );
     fileSink.writeImport(packageName: "dart:ffi");
     fileSink.writeImport(packageName: "package:ffi/ffi.dart");
 
-    await fields.generateImport(
+    fields.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
 
-    await methods.generateImport(
+    methods.generateImport(
       fileSink: fileSink,
       enumSet: enumSet,
       structSet: structSet,
@@ -60,18 +62,18 @@ extension SteamStructExtensions on SteamStruct {
       fileSink.writeln("static int get callbackId => $callbackId;\n");
     }
 
-    await consts.generate(
+    consts.generate(
       fileSink: fileSink,
     );
 
-    await fields.generate(
+    fields.generate(
       fileSink: fileSink,
     );
 
     fileSink.writeEndBlock();
 
     if (methods.isNotEmpty || fields.isNotEmpty) {
-      await methods.generateLookup(
+      methods.generateLookup(
         fileSink: fileSink,
         owner: correctedName,
       );
@@ -83,20 +85,17 @@ extension SteamStructExtensions on SteamStruct {
 
       fileSink.writeStartBlock();
 
-      await methods.generate(
+      methods.generate(
         fileSink: fileSink,
         owner: correctedName,
       );
 
-      await fields.generateFieldAccess(
+      fields.generateFieldAccess(
         fileSink: fileSink,
       );
 
       fileSink.writeEndBlock();
     }
-
-    await fileSink.flush();
-    await fileSink.close();
   }
 
   /// Generates necessary file and code for a [SteamStruct]
@@ -132,7 +131,7 @@ extension SteamStructExtensions on SteamStruct {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    await generate(
+    generate(
       fileSink: fileSink,
       target: target,
       enumSet: enumSet,
@@ -425,9 +424,6 @@ extension SteamStructExtensions on SteamStruct {
       case "SteamDatagramGameCoordinatorServerLogin":
       case "SteamRelayNetworkStatus_t":
       case "SteamNetConnectionInfo_t":
-      // TODO: delete below when the following is resolved: https://github.com/dart-lang/sdk/issues/46644
-      // and uncomment the related case below for packed 1
-      case "SteamNetworkingMessagesSessionFailed_t":
       case "SteamNetConnectionRealTimeStatus_t":
       case "SteamNetConnectionRealTimeLaneStatus_t":
         return _steamPackSize(
@@ -448,7 +444,7 @@ extension SteamStructExtensions on SteamStruct {
 
       // isteamnetworkingmessages
       case "SteamNetworkingMessagesSessionRequest_t":
-      // case "SteamNetworkingMessagesSessionFailed_t":
+      case "SteamNetworkingMessagesSessionFailed_t":
 
       // steamclientpublic ?
 

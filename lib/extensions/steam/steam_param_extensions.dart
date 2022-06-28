@@ -5,17 +5,18 @@ import "package:recase/recase.dart";
 import "../../steam/steam_param.dart";
 import "../file_extensions.dart";
 import "../string_extensions.dart";
+import "../token.dart";
 
 /// Extensions on [SteamParam] to generate ffi code
 extension SteamFieldExtensions on SteamParam {
   /// Generates necessary imports for a [SteamParam]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     String importPath =
         type.clearClassAccess().clearPointerOrConst().trim().importPath(
               enumSet: enumSet,
@@ -30,40 +31,91 @@ extension SteamFieldExtensions on SteamParam {
   }
 
   /// Generates necessary code for a [SteamParam]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-    bool withType = false,
-    bool withFunctionType = false,
+    bool withDart = false,
+    bool withFunctionDart = false,
+    bool withFunctionC = false,
     bool withName = false,
-  }) async {
-    if (withType) {
-      fileSink.write(type.toNativeType());
+    bool withCaller = false,
+  }) {
+    Token token = type.toToken();
+
+    if (withDart) {
+      fileSink.write(token.typeDart);
     }
 
-    if (withFunctionType) {
-      fileSink.write(type.toNativeFunctionType());
+    if (withFunctionDart) {
+      fileSink.write(token.typeFfiDart);
+    }
+
+    if (withFunctionC) {
+      fileSink.write(token.typeFfiC);
     }
 
     if (withName) {
       fileSink.write(" ${name.clearSteamNaming().camelCase}");
     }
 
+    if (withCaller) {
+      fileSink.write(
+        " ${token.caller.replaceAll("{0}", name.clearSteamNaming().camelCase)}",
+      );
+    }
+
     fileSink.write(",");
+  }
+
+  /// Generates necessary code for a [SteamParam] as [String]
+  String generateString({
+    bool withDart = false,
+    bool withFunctionDart = false,
+    bool withFunctionC = false,
+    bool withName = false,
+    bool withCaller = false,
+  }) {
+    Token token = type.toToken();
+    StringBuffer sb = StringBuffer();
+    if (withDart) {
+      sb.write(token.typeDart);
+    }
+
+    if (withFunctionDart) {
+      sb.write(token.typeFfiDart);
+    }
+
+    if (withFunctionC) {
+      sb.write(token.typeFfiC);
+    }
+
+    if (withName) {
+      sb.write(" ${name.clearSteamNaming().camelCase}");
+    }
+
+    if (withCaller) {
+      sb.write(
+        " ${token.caller.replaceAll("{0}", name.clearSteamNaming().camelCase)}",
+      );
+    }
+
+    sb.write(",");
+
+    return sb.toString();
   }
 }
 
 /// Extensions on [Iterable<SteamParam>] to generate ffi code
 extension SteamParamIterableExtensions on Iterable<SteamParam> {
   /// Generates respective imports for each [SteamParam]
-  Future<void> generateImport({
+  void generateImport({
     required IOSink fileSink,
     Set<String> enumSet = const {},
     Set<String> structSet = const {},
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
-  }) async {
+  }) {
     for (SteamParam param in this) {
-      await param.generateImport(
+      param.generateImport(
         fileSink: fileSink,
         enumSet: enumSet,
         structSet: structSet,
@@ -74,19 +126,43 @@ extension SteamParamIterableExtensions on Iterable<SteamParam> {
   }
 
   /// Generates respective code for each [SteamParam]
-  Future<void> generate({
+  void generate({
     required IOSink fileSink,
-    bool withType = false,
-    bool withFunctionType = false,
+    bool withDart = false,
+    bool withFunctionDart = false,
+    bool withFunctionC = false,
     bool withName = false,
-  }) async {
+    bool withCaller = false,
+  }) {
     for (SteamParam param in this) {
-      await param.generate(
+      param.generate(
         fileSink: fileSink,
-        withType: withType,
-        withFunctionType: withFunctionType,
+        withDart: withDart,
+        withFunctionDart: withFunctionDart,
+        withFunctionC: withFunctionC,
         withName: withName,
+        withCaller: withCaller,
       );
     }
   }
+
+  /// Generates respective code for each [SteamParam] as String
+  String generateString({
+    bool withDart = false,
+    bool withFunctionDart = false,
+    bool withFunctionC = false,
+    bool withName = false,
+    bool withCaller = false,
+  }) =>
+      this
+          .map(
+            (p) => p.generateString(
+              withDart: withDart,
+              withFunctionDart: withFunctionDart,
+              withFunctionC: withFunctionC,
+              withName: withName,
+              withCaller: withCaller,
+            ),
+          )
+          .join();
 }
