@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Revert struct packing since it did not released on stable channel yet.
+
 ## 0.3.0
 
 - Generate C enums as Dart Enhanced Enums.

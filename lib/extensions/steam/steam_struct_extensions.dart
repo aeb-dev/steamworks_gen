@@ -426,6 +426,10 @@ extension SteamStructExtensions on SteamStruct {
       case "SteamNetConnectionInfo_t":
       case "SteamNetConnectionRealTimeStatus_t":
       case "SteamNetConnectionRealTimeLaneStatus_t":
+
+      // TODO: delete below when the following is resolved: https://github.com/dart-lang/sdk/issues/46644
+      // and uncomment the related case below for packed 1
+      case "SteamNetworkingMessagesSessionFailed_t":
         return _steamPackSize(
           target: target,
         );
@@ -444,7 +448,7 @@ extension SteamStructExtensions on SteamStruct {
 
       // isteamnetworkingmessages
       case "SteamNetworkingMessagesSessionRequest_t":
-      case "SteamNetworkingMessagesSessionFailed_t":
+      // case "SteamNetworkingMessagesSessionFailed_t":
 
       // steamclientpublic ?
 
