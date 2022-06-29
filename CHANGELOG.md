@@ -1,3 +1,7 @@
+## 0.3.2
+
+- Remove unnecessary `ffi` package
+
 ## 0.3.1
 
 - Revert struct packing since it did not released on stable channel yet.
