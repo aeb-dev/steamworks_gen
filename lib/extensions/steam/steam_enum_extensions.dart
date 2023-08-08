@@ -32,8 +32,13 @@ extension SteamEnumExtensions on SteamEnum {
 
     String correctedName = name.clearSteamNaming();
 
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs, always_specify_types, avoid_positional_boolean_parameters, avoid_classes_with_only_static_members, unreachable_switch_case",
+    );
     fileSink.writeImport(packageName: "dart:ffi");
+    fileSink.writeImport(
+      packageName: "../unknown_enum_value_exception.dart",
+    );
     fileSink.writeTypedef(
       alias: "${correctedName}AliasDart",
       of: "int",
@@ -82,7 +87,7 @@ extension SteamEnumExtensions on SteamEnum {
     }
 
     fileSink.write(
-      "default:throw \"Unknown value for '$correctedName'. The value was: '\$value'\";",
+      "default: throw UnknownEnumValueException(\"Unknown value for '$correctedName'. The value was: '\$value'\");",
     );
 
     fileSink.writeEndBlock();

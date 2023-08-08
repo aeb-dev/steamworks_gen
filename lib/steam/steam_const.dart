@@ -9,6 +9,14 @@ class SteamConst {
   /// value of the constant
   late String value;
 
+  /// Creates a [SteamConst]. This constructor is used
+  /// for manual [SteamConst] creation
+  SteamConst({
+    required this.name,
+    required this.type,
+    required this.value,
+  });
+
   /// Creates a [SteamConst] from json
   SteamConst.fromJson(Map<String, dynamic> json) {
     name = json["constname"];

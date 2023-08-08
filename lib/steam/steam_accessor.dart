@@ -1,3 +1,4 @@
+// ignore: comment_references
 /// Accessor field of [SteamInterface]s
 class SteamAccessor {
   /// kind of accessor

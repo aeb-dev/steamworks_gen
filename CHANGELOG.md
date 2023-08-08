@@ -1,3 +1,9 @@
+## 0.4.0
+
+- Support for Steam SDK 1.57
+- Dart 3
+- Update linter to aeb_lint
+
 ## 0.3.2
 
 - Remove unnecessary `ffi` package

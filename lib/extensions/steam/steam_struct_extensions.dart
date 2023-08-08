@@ -22,7 +22,7 @@ extension SteamStructExtensions on SteamStruct {
     Set<String> callbackStructSet = const {},
   }) {
     fileSink.writeln(
-      "// ignore_for_file: public_member_api_docs, packed_nesting_non_packed",
+      "// ignore_for_file: public_member_api_docs, always_specify_types, avoid_positional_boolean_parameters, avoid_classes_with_only_static_members",
     );
     fileSink.writeImport(packageName: "dart:ffi");
     fileSink.writeImport(packageName: "package:ffi/ffi.dart");
@@ -54,6 +54,7 @@ extension SteamStructExtensions on SteamStruct {
     fileSink.writeClass(
       className: correctedName,
       extend: fields.isNotEmpty ? "Struct" : "Opaque",
+      isFinal: true,
     );
     fileSink.writeStartBlock();
 
@@ -472,7 +473,7 @@ extension SteamStructExtensions on SteamStruct {
     } else if (target == "linux" || target == "mac") {
       return 4;
     } else {
-      throw "Unsupported platform: $target";
+      throw Exception("Unsupported platform: $target");
     }
   }
 }

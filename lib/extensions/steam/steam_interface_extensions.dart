@@ -20,7 +20,9 @@ extension SteamInterfaceExtensions on SteamInterface {
     Set<String> callbackStructSet = const {},
     Set<String> interfaceSet = const {},
   }) {
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs, always_specify_types, avoid_positional_boolean_parameters, avoid_classes_with_only_static_members",
+    );
     fileSink.writeImport(
       packageName: "dart:ffi",
     );
@@ -60,6 +62,7 @@ extension SteamInterfaceExtensions on SteamInterface {
     fileSink.writeClass(
       className: correctedName,
       extend: "Opaque",
+      isFinal: true,
     );
     fileSink.writeStartBlock();
 

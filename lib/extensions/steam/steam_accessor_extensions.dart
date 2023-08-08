@@ -13,7 +13,7 @@ extension SteamAccessorExtensions on SteamAccessor {
     required String interface,
   }) {
     fileSink.writeln(
-      "final _${friendlyName.camelCase} = dl.lookupFunction<Pointer<$interface> Function(),Pointer<$interface> Function()>(\"$nameFlat\");\n",
+      'final _${friendlyName.camelCase} = dl.lookupFunction<Pointer<$interface> Function(),Pointer<$interface> Function()>("$nameFlat");\n',
     );
   }
 
@@ -26,15 +26,12 @@ extension SteamAccessorExtensions on SteamAccessor {
     switch (kind) {
       case "user":
         instance = "userInstance";
-        break;
       case "gameserver":
         instance = "serverInstance";
-        break;
       case "global":
         instance = "globalInstance";
-        break;
       default:
-        throw "Unknown accessor kind: '$kind'";
+        throw Exception("Unknown accessor kind: '$kind'");
     }
     fileSink.writeln(
       "static Pointer<$interface> get $instance => _$friendlyName();\n",
@@ -48,9 +45,7 @@ extension SteamAccessorExtensions on SteamAccessor {
       correctedName.replaceAll("_SteamAPI", "");
     }
 
-    correctedName = correctedName.clearSteamNaming().camelCase;
-
-    return correctedName;
+    return correctedName.clearSteamNaming().camelCase;
   }
 }
 

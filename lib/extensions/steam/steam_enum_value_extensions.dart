@@ -48,17 +48,14 @@ extension SteamEnumValueExtensions on SteamEnumValue {
         case "ESteamIpType":
         case "SteamIpType":
           valueName = "V$valueName";
-          break;
         case "EHttpStatusCode":
         case "HttpStatusCode":
           valueName = "StatusCode$valueName";
-          break;
         case "EDurationControlNotification":
         case "DurationControlNotification":
           valueName = "Duration$valueName";
-          break;
         default:
-          throw "What happened";
+          throw Exception("Unexpected scenario for _getValueName");
       }
     }
 

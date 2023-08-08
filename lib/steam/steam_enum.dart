@@ -15,8 +15,8 @@ class SteamEnum {
   /// for manual [SteamEnum] creation
   SteamEnum({
     required this.name,
-    this.fqName = "",
     required this.values,
+    this.fqName = "",
   });
 
   /// Creates a [SteamEnum] from json

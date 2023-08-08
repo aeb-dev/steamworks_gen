@@ -120,6 +120,10 @@ extension SteamApiExtensions on SteamApi {
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
+    await generateUnknownEnumValueException(
+      path: path,
+      exportSink: exportSink,
+    );
     await consts.generateFile(
       path: path,
       exportSink: exportSink,
@@ -173,6 +177,9 @@ extension SteamApiExtensions on SteamApi {
       callbackStructSet: callbackStructSet,
       interfaceSet: interfaceSet,
     );
+
+    await exportSink.flush();
+    await exportSink.close();
   }
 
   /// Generates code for accessing the library file
@@ -185,7 +192,9 @@ extension SteamApiExtensions on SteamApi {
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
 
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs, always_specify_types, avoid_positional_boolean_parameters, avoid_classes_with_only_static_members",
+    );
     fileSink.writeImport(
       packageName: "dart:ffi",
     );
@@ -194,8 +203,11 @@ extension SteamApiExtensions on SteamApi {
     );
 
     fileSink.writeln(
-      "DynamicLibrary dl = Platform.isWindows ? DynamicLibrary.open(\"./steam_api64.dll\") : Platform.isLinux ? DynamicLibrary.open(\"./libsteam_api.so\") : DynamicLibrary.open(\"./libsteam_api.dylib\");\n",
+      'DynamicLibrary dl = Platform.isWindows ? DynamicLibrary.open("./steam_api64.dll") : Platform.isLinux ? DynamicLibrary.open("./libsteam_api.so") : DynamicLibrary.open("./libsteam_api.dylib");\n',
     );
+
+    await fileSink.flush();
+    await fileSink.close();
   }
 
   /// Generates callback id map by type to make
@@ -214,7 +226,9 @@ extension SteamApiExtensions on SteamApi {
     await file.create(recursive: true);
 
     IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
-    fileSink.writeln("// ignore_for_file: public_member_api_docs");
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs, always_specify_types, avoid_positional_boolean_parameters, avoid_classes_with_only_static_members",
+    );
 
     for (String name in callbackStructs.map((cs) => cs.name)) {
       String importPath = name.importPath(
@@ -241,6 +255,9 @@ extension SteamApiExtensions on SteamApi {
     fileSink.writeEndBlock();
 
     fileSink.write(";");
+
+    await fileSink.flush();
+    await fileSink.close();
   }
 
   /// Generates code for common steam apis
@@ -480,6 +497,37 @@ extension SteamApiExtensions on SteamApi {
       structSet: structSet,
       callbackStructSet: callbackStructSet,
     );
+  }
+
+  /// Generates exception for enums
+  Future<void> generateUnknownEnumValueException({
+    required String path,
+    required IOSink exportSink,
+  }) async {
+    String filePath = p.join(path, "unknown_enum_value_exception.dart");
+    exportSink.writeExport(
+      path: "unknown_enum_value_exception.dart",
+    );
+
+    File file = File(filePath);
+    await file.create(recursive: true);
+
+    IOSink fileSink = file.openWrite(mode: FileMode.writeOnly);
+
+    fileSink.writeln(
+      "// ignore_for_file: public_member_api_docs",
+    );
+
+    fileSink.write("""
+        class UnknownEnumValueException implements Exception {
+          final String message;
+
+          const UnknownEnumValueException(this.message);
+        }
+      """);
+
+    await fileSink.flush();
+    await fileSink.close();
   }
 
   /// Generates utility functions for ffi

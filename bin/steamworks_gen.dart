@@ -52,11 +52,11 @@ Future<void> main(List<String> arguments) async {
     }
 
     if (!argResults.wasParsed("output")) {
-      throw "Please provide output -o option\n";
+      throw Exception("Please provide output -o option\n");
     }
 
     if (argResults.rest.length != 1) {
-      throw "Missing argument: steam api json path\n";
+      throw Exception("Missing argument: steam api json path\n");
     }
   } on String catch (e) {
     printError(e, parser);

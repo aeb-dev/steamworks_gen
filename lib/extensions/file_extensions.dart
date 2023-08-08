@@ -7,7 +7,7 @@ extension FileExtensions on IOSink {
     required String packageName,
     String asName = "",
   }) {
-    write("import \"$packageName\"");
+    write('import "$packageName"');
     if (asName.isNotEmpty) {
       write(" as $asName");
     }
@@ -28,7 +28,11 @@ extension FileExtensions on IOSink {
   void writeClass({
     required String className,
     String extend = "",
+    bool isFinal = false,
   }) {
+    if (isFinal) {
+      write("final ");
+    }
     write("class $className");
     if (extend.isNotEmpty) {
       write(" extends $extend");
@@ -81,8 +85,8 @@ extension FileExtensions on IOSink {
 
   /// writes an extension class
   void writeExtension({
-    String extensionName = "",
     required String on,
+    String extensionName = "",
   }) {
     write("extension ");
     if (extensionName.isNotEmpty) {
@@ -96,6 +100,6 @@ extension FileExtensions on IOSink {
   void writeExport({
     required String path,
   }) {
-    writeln("export \"$path\";");
+    writeln('export "$path";');
   }
 }

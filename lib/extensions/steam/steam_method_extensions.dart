@@ -21,10 +21,11 @@ extension SteamMethodExtensions on SteamMethod {
     "SetGlobalCallback_MessagesSessionRequest",
     "SetGlobalCallback_MessagesSessionFailed",
     "GetISteamController",
+    "SetDualSenseTriggerEffect",
   };
 
   bool _shouldCreate() => !(_ignoreList.contains(name) ||
-      nameFlat.contains(RegExp(r"(deprecated|DEPRECATED|Deprecated)")));
+      nameFlat.contains(RegExp("(deprecated|DEPRECATED|Deprecated)")));
 
   /// Generates necessary import for a [SteamMethod]
   void generateImport({
@@ -80,7 +81,7 @@ extension SteamMethodExtensions on SteamMethod {
       withFunctionDart: true,
     );
 
-    fileSink.writeln(")>(\"$nameFlat\");\n");
+    fileSink.writeln(')>("$nameFlat");\n');
   }
 
   /// Generates necessary code for calling lookup functions for [SteamMethod]

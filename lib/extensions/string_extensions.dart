@@ -141,6 +141,9 @@ extension StringExtensions on String {
     } else if (result.startsWith("m_rgub") &&
         result[6].toUpperCase() == result[6]) {
       result = result.replaceFirst("m_rgub", "");
+
+      // the reason we did is GetTicketForWebApiResponse_t ticket field
+      result += "AsArray";
     } else if (result.startsWith("m_rgf") &&
         result[5].toUpperCase() == result[5]) {
       result = result.replaceFirst("m_rgf", "");
@@ -307,21 +310,18 @@ extension StringExtensions on String {
         typeFfiC = "Void";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "bool":
         typeDart = "bool";
         typeFfiDart = typeDart;
         typeFfiC = "Bool";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "size_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Size";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "unsigned char":
       case "uint8":
         typeDart = "int";
@@ -329,7 +329,6 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedChar";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "signed char":
       case "int8":
         typeDart = "int";
@@ -337,7 +336,6 @@ extension StringExtensions on String {
         typeFfiC = "SignedChar";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "short":
       case "int16":
         typeDart = "int";
@@ -345,7 +343,6 @@ extension StringExtensions on String {
         typeFfiC = "Short";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "unsigned short":
       case "uint16":
         typeDart = "int";
@@ -353,14 +350,12 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedShort";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "int":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Int";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "unsigned int":
       case "uint32":
         typeDart = "int";
@@ -368,7 +363,6 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedInt";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "long long":
       case "intp":
       case "int64":
@@ -377,7 +371,6 @@ extension StringExtensions on String {
         typeFfiC = "LongLong";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "unsigned long long":
       case "uintp":
       case "uint64":
@@ -386,35 +379,30 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedLongLong";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "uint32_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "UInt32";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "uint16_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "UInt16";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "int32":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Int";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "int32_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Int32";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       // case "uint":
       case "int64_t":
         typeDart = "int";
@@ -422,35 +410,30 @@ extension StringExtensions on String {
         typeFfiC = "Int64";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "uint64_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "UInt64";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "int16_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Int16";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "int8_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "Int8";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "uint8_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "UInt8";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "char":
         if (pointerMatches.isEmpty && arrayMatches.isEmpty) {
           typeDart = "int";
@@ -471,28 +454,24 @@ extension StringExtensions on String {
         typeFfiDart = typeDart;
         tokenType = TokenType.string;
 
-        break;
       case "intptr_t":
         typeDart = "int";
         typeFfiDart = typeDart;
         typeFfiC = "IntPtr";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "double":
         typeDart = "double";
         typeFfiDart = typeDart;
         typeFfiC = "Double";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
       case "float":
         typeDart = "double";
         typeFfiDart = typeDart;
         typeFfiC = "Float";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
-        break;
 
       // enums
       case "EFailureType":
@@ -601,6 +580,9 @@ extension StringExtensions on String {
       case "EHTMLMouseButton":
       case "EMouseCursor":
       case "EHTMLKeyModifiers":
+      case "ECommunityProfileItemType":
+      case "ECommunityProfileItemProperty":
+      case "EUGCContentDescriptorID":
         typeDart = type.clearSteamNaming();
         typeFfiDart = "${typeDart}AliasDart";
         typeFfiC = "${typeDart}AliasC";
@@ -613,8 +595,6 @@ extension StringExtensions on String {
 
         tokenType = TokenType.enums;
 
-        break;
-
       // typedefs
       case "HSteamPipe":
       case "HSteamUser":
@@ -626,14 +606,12 @@ extension StringExtensions on String {
         typeFfiC = "Int";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.typedefs;
-        break;
       case "FriendsGroupID_t":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
         typeFfiC = "Short";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.typedefs;
-        break;
       case "AppId_t":
       case "DepotId_t":
       case "RTime32":
@@ -655,7 +633,6 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedInt";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.typedefs;
-        break;
       case "CSteamID":
       case "CGameID":
       case "SteamAPICall_t":
@@ -683,28 +660,24 @@ extension StringExtensions on String {
         typeFfiC = "UnsignedLongLong";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.typedefs;
-        break;
       case "SteamNetworkingMicroseconds":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
         typeFfiC = "LongLong";
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.typedefs;
-        break;
       case "HServerListRequest":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
         typeFfiC = "Pointer<Void>";
         typeAnnotation = "";
         tokenType = TokenType.typedefs;
-        break;
       case "SteamNetworkingErrMsg":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
         typeFfiC = "Pointer<Utf8>";
         typeAnnotation = "";
         tokenType = TokenType.typedefs;
-        break;
 
       //functions
       // TODO pointers gets lost so we can not distinguish SteamNetworkingMessage_t vs SteamNetworkingMessage_t *
@@ -715,7 +688,6 @@ extension StringExtensions on String {
         typeFfiC = typeDart;
         typeAnnotation = "";
         tokenType = TokenType.function;
-        break;
 
       // structs or interfaces
       default:
@@ -726,25 +698,25 @@ extension StringExtensions on String {
         tokenType = TokenType.structOrInterface;
     }
 
-    if (pointerMatches.isNotEmpty &&
-        !(tokenType == TokenType.function || tokenType == TokenType.string)) {
-      String prefix = pointerMatches.map((m) => "Pointer<").join();
-      String postfix = pointerMatches.map((m) => ">").join();
+    if (!(tokenType == TokenType.function || tokenType == TokenType.string)) {
+      if (pointerMatches.isNotEmpty) {
+        String prefix = pointerMatches.map((m) => "Pointer<").join();
+        String postfix = pointerMatches.map((m) => ">").join();
 
-      typeFfiC = "$prefix$typeFfiC$postfix";
-      typeDart = typeFfiC;
-      typeFfiDart = typeFfiC;
-      typeAnnotation = "";
-    } else if (arrayMatches.isNotEmpty &&
-        !(tokenType == TokenType.function || tokenType == TokenType.string)) {
-      String prefix = arrayMatches.map((m) => "Array<").join();
-      String postfix = arrayMatches.map((e) => ">").join();
-      String arrayDimensions = arrayMatches.map((m) => m.group(1)!).join(",");
+        typeFfiC = "$prefix$typeFfiC$postfix";
+        typeDart = typeFfiC;
+        typeFfiDart = typeFfiC;
+        typeAnnotation = "";
+      } else if (arrayMatches.isNotEmpty) {
+        String prefix = arrayMatches.map((m) => "Array<").join();
+        String postfix = arrayMatches.map((e) => ">").join();
+        String arrayDimensions = arrayMatches.map((m) => m.group(1)!).join(",");
 
-      typeFfiC = "$prefix$typeFfiC$postfix";
-      typeDart = typeFfiC;
-      typeFfiDart = typeFfiC;
-      typeAnnotation = "$typeFfiC($arrayDimensions)";
+        typeFfiC = "$prefix$typeFfiC$postfix";
+        typeDart = typeFfiC;
+        typeFfiDart = typeFfiC;
+        typeAnnotation = "$typeFfiC($arrayDimensions)";
+      }
     }
 
     Token token = Token(
