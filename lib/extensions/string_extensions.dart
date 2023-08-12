@@ -435,25 +435,11 @@ extension StringExtensions on String {
         typeAnnotation = "$typeFfiC()";
         tokenType = TokenType.primitive;
       case "char":
-        if (pointerMatches.isEmpty && arrayMatches.isEmpty) {
-          typeDart = "int";
-          typeFfiC = "Char";
-          typeAnnotation = "$typeFfiC()";
-        } else {
-          Iterable<int> matchCount =
-              Iterable.generate(pointerMatches.length + arrayMatches.length);
-
-          String prefix = matchCount.map((m) => "Pointer<").join();
-          String postfix = matchCount.map((m) => ">").join();
-
-          typeFfiC = "${prefix}Utf8$postfix";
-          typeDart = typeFfiC;
-          typeAnnotation = "";
-        }
-
+        typeDart = "int";
         typeFfiDart = typeDart;
-        tokenType = TokenType.string;
-
+        typeFfiC = "Char";
+        typeAnnotation = "$typeFfiC()";
+        tokenType = TokenType.primitive;
       case "intptr_t":
         typeDart = "int";
         typeFfiDart = typeDart;
@@ -698,10 +684,14 @@ extension StringExtensions on String {
         tokenType = TokenType.structOrInterface;
     }
 
-    if (!(tokenType == TokenType.function || tokenType == TokenType.string)) {
+    if (tokenType != TokenType.function) {
       if (pointerMatches.isNotEmpty) {
         String prefix = pointerMatches.map((m) => "Pointer<").join();
         String postfix = pointerMatches.map((m) => ">").join();
+
+        if (typeFfiC == "Char") {
+          typeFfiC = "Utf8";
+        }
 
         typeFfiC = "$prefix$typeFfiC$postfix";
         typeDart = typeFfiC;

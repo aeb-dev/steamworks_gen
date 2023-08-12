@@ -44,9 +44,6 @@ enum TokenType {
   /// int, char, bool etc. (except string)
   primitive,
 
-  /// string
-  string,
-
   /// enum
   enums,
 
