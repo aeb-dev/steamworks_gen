@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Fix for inline char arrays and char pointers
+
 ## 0.4.0
 
 - Support for Steam SDK 1.57
