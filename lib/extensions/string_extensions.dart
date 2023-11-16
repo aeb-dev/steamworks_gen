@@ -569,6 +569,8 @@ extension StringExtensions on String {
       case "ECommunityProfileItemType":
       case "ECommunityProfileItemProperty":
       case "EUGCContentDescriptorID":
+      case "ETimelineGame":
+      case "ETimelineGameMode":
         typeDart = type.clearSteamNaming();
         typeFfiDart = "${typeDart}AliasDart";
         typeFfiC = "${typeDart}AliasC";

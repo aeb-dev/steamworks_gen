@@ -1,3 +1,7 @@
+## 0.4.2
+
+- Update steam api to 1.58a
+
 ## 0.4.1
 
 - Fix for inline char arrays and char pointers
