@@ -1,3 +1,7 @@
+## 0.4.3
+
+- Update steam api to 1.59
+
 ## 0.4.2
 
 - Update steam api to 1.58a
