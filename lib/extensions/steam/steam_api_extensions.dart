@@ -273,8 +273,14 @@ extension SteamApiExtensions on SteamApi {
       methods: [
         SteamMethod(
           name: "Init",
-          nameFlat: "SteamAPI_Init",
-          returnType: "bool",
+          nameFlat: "SteamAPI_InitFlat",
+          returnType: "ESteamAPIInitResult",
+          params: [
+            SteamParam(
+              name: "outErrorMessage",
+              type: "SteamErrMsg *",
+            ),
+          ],
         ),
         SteamMethod(
           name: "ReleaseCurrentThreadMemory",

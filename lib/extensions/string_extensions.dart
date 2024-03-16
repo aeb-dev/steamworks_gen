@@ -67,7 +67,7 @@ extension StringExtensions on String {
     "implenets",
     "static",
     "late",
-    "toString"
+    "toString",
   };
 
   /// clears the const keyword or pointers on a string
@@ -571,6 +571,7 @@ extension StringExtensions on String {
       case "EUGCContentDescriptorID":
       case "ETimelineGame":
       case "ETimelineGameMode":
+      case "ESteamAPIInitResult":
         typeDart = type.clearSteamNaming();
         typeFfiDart = "${typeDart}AliasDart";
         typeFfiC = "${typeDart}AliasC";
@@ -661,9 +662,10 @@ extension StringExtensions on String {
         typeAnnotation = "";
         tokenType = TokenType.typedefs;
       case "SteamNetworkingErrMsg":
+      case "SteamErrMsg":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
-        typeFfiC = "Pointer<Utf8>";
+        typeFfiC = "Utf8";
         typeAnnotation = "";
         tokenType = TokenType.typedefs;
 
