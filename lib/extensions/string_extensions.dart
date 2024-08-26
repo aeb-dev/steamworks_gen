@@ -572,6 +572,8 @@ extension StringExtensions on String {
       case "ETimelineGame":
       case "ETimelineGameMode":
       case "ESteamAPIInitResult":
+      case "EBetaBranchFlags":
+      case "ETimelineEventClipPriority":
         typeDart = type.clearSteamNaming();
         typeFfiDart = "${typeDart}AliasDart";
         typeFfiC = "${typeDart}AliasC";

@@ -22,6 +22,10 @@ extension SteamConstExtensions on SteamConst {
       "( ( uint32 ) 'd' << 16U ) | ( ( uint32 ) 'e' << 8U ) | ( uint32 ) 'v'",
       "6579574",
     );
+    correctedValue = correctedValue.replaceAll(
+      "600.f",
+      "600.0",
+    );
     correctedValue =
         correctedValue.replaceAll("( SteamItemInstanceID_t ) ~ 0", "~0");
     correctedValue = correctedValue.clearSteamNaming();
