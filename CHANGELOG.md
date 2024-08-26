@@ -1,3 +1,8 @@
+## 0.4.4
+
+- Update steam api to 1.60
+- Load dynamic library without relative path
+
 ## 0.4.3
 
 - Update steam api to 1.59
