@@ -203,7 +203,7 @@ extension SteamApiExtensions on SteamApi {
     );
 
     fileSink.writeln(
-      'DynamicLibrary dl = Platform.isWindows ? DynamicLibrary.open("./steam_api64.dll") : Platform.isLinux ? DynamicLibrary.open("./libsteam_api.so") : DynamicLibrary.open("./libsteam_api.dylib");\n',
+      'DynamicLibrary dl = Platform.isWindows ? DynamicLibrary.open("steam_api64.dll") : Platform.isLinux ? DynamicLibrary.open("libsteam_api.so") : DynamicLibrary.open("libsteam_api.dylib");\n',
     );
 
     await fileSink.flush();
