@@ -1,3 +1,8 @@
+## 0.4.5
+
+- Update steam api to 1.63
+- Add android to platforms in pubspec.yaml
+
 ## 0.4.4
 
 - Update steam api to 1.60
