@@ -504,6 +504,9 @@ extension StringExtensions on String {
       case "EChatMemberStateChange":
       case "ESteamPartyBeaconLocationType":
       case "ESteamPartyBeaconLocationData":
+      case "ERemotePlayInputType":
+      case "ERemotePlayMouseWheelDirection":
+      case "ERemotePlayScancode":
       case "ERemoteStoragePlatform":
       case "ERemoteStoragePublishedFileVisibility":
       case "EWorkshopFileType":
@@ -615,6 +618,7 @@ extension StringExtensions on String {
       case "HTTPCookieContainerHandle":
       case "HHTMLBrowser":
       case "RemotePlaySessionID_t":
+      case "RemotePlayCursorID_t":
       case "HSteamNetConnection":
       case "HSteamListenSocket":
       case "HSteamNetPollGroup":
@@ -646,6 +650,7 @@ extension StringExtensions on String {
       case "UGCUpdateHandle_t":
       case "SteamItemInstanceID_t":
       case "SteamInventoryUpdateHandle_t":
+      case "TimelineEventHandle_t":
         typeDart = type.clearSteamNaming();
         typeFfiDart = typeDart;
         typeFfiC = "UnsignedLongLong";

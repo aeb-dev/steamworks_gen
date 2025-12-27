@@ -9,7 +9,7 @@ import "steam/steam_api.dart";
 /// Generates the steam api
 /// [steamApiJsonPath] is the path for steam_api.json file
 /// [outputPath] is the path of the output folder
-/// [target] is the target platform. i.e win for windows. Possible values win, linux, mac
+/// [target] is the target platform. i.e win for windows. Possible values win, linux, mac, arm
 Future<void> generate(
   String steamApiJsonPath,
   String outputPath,

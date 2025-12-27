@@ -31,6 +31,7 @@ Future<void> main(List<String> arguments) async {
         "win",
         "linux",
         "mac",
+        "arm",
       ],
       defaultsTo: "win",
     )

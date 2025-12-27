@@ -470,7 +470,7 @@ extension SteamStructExtensions on SteamStruct {
   }) {
     if (target == "win") {
       return 8;
-    } else if (target == "linux" || target == "mac") {
+    } else if (target == "linux" || target == "mac" || target == "arm") {
       return 4;
     } else {
       throw Exception("Unsupported platform: $target");

@@ -54,8 +54,10 @@ extension SteamEnumValueExtensions on SteamEnumValue {
         case "EDurationControlNotification":
         case "DurationControlNotification":
           valueName = "Duration$valueName";
+        case "ERemotePlayScancode":
+          valueName = "RemotePlayScancode$valueName";
         default:
-          throw Exception("Unexpected scenario for _getValueName");
+          throw Exception("Unexpected scenario for _getValueName: $enumName");
       }
     }
 
