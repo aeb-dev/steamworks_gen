@@ -38,18 +38,24 @@ class SteamStruct {
   /// Creates a [SteamStruct] from json
   SteamStruct.fromJson(Map<String, dynamic> json) {
     callbackId = json["callback_id"] ?? -1;
-    fields =
-        json["fields"].map<SteamField>((v) => SteamField.fromJson(v)).toList();
+    fields = json["fields"]
+        .map<SteamField>((dynamic v) => SteamField.fromJson(v))
+        .toList();
     methods = json["methods"]
-            ?.map<SteamMethod>((v) => SteamMethod.fromJson(v))
+            ?.map<SteamMethod>(
+              (dynamic v) => SteamMethod.fromJson(v),
+            )
             ?.toList() ??
         [];
     name = json["struct"];
-    enums =
-        json["enums"]?.map<SteamEnum>((v) => SteamEnum.fromJson(v))?.toList() ??
-            [];
+    enums = json["enums"]
+            ?.map<SteamEnum>((dynamic v) => SteamEnum.fromJson(v))
+            ?.toList() ??
+        [];
     consts = json["consts"]
-            ?.map<SteamConst>((v) => SteamConst.fromJson(v))
+            ?.map<SteamConst>(
+              (dynamic v) => SteamConst.fromJson(v),
+            )
             ?.toList() ??
         [];
   }

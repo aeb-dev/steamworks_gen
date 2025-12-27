@@ -37,18 +37,22 @@ class SteamInterface {
   /// Creates a [SteamInterface] from json
   SteamInterface.fromJson(Map<String, dynamic> json) {
     name = json["classname"];
-    fields =
-        json["fields"].map<SteamField>((v) => SteamField.fromJson(v)).toList();
+    fields = json["fields"]
+        .map<SteamField>((dynamic v) => SteamField.fromJson(v))
+        .toList();
     methods = json["methods"]
-        .map<SteamMethod>((v) => SteamMethod.fromJson(v))
+        .map<SteamMethod>((dynamic v) => SteamMethod.fromJson(v))
         .toList();
     accessors = json["accessors"]
-            ?.map<SteamAccessor>((v) => SteamAccessor.fromJson(v))
+            ?.map<SteamAccessor>(
+              (dynamic v) => SteamAccessor.fromJson(v),
+            )
             ?.toList() ??
         [];
     versionString = json["version_string"] ?? "";
-    enums =
-        json["enums"]?.map<SteamEnum>((v) => SteamEnum.fromJson(v))?.toList() ??
-            [];
+    enums = json["enums"]
+            ?.map<SteamEnum>((dynamic v) => SteamEnum.fromJson(v))
+            ?.toList() ??
+        [];
   }
 }

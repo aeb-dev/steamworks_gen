@@ -41,7 +41,7 @@ class SteamMethod {
     nameFlat = json["methodname_flat"];
     returnType = json["returntype"];
     params =
-        json["params"].map<SteamParam>((v) => SteamParam.fromJson(v)).toList();
+        json["params"].map<SteamParam>((dynamic v) => SteamParam.fromJson(v)).toList();
     returnTypeFlat = json["returntype_flat"] ?? "";
     callResult = json["callresult"] ?? "";
     callback = json["callback"] ?? "";

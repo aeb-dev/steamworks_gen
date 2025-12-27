@@ -27,24 +27,29 @@ class SteamApi {
   /// Creates a [SteamApi] from json
   SteamApi.fromJson(Map<String, dynamic> json) {
     callbackStructs = json["callback_structs"]
-        .map<SteamStruct>((x) => SteamStruct.fromJson(x))
+        .map<SteamStruct>((dynamic x) => SteamStruct.fromJson(x))
         .toList();
 
-    consts =
-        json["consts"].map<SteamConst>((x) => SteamConst.fromJson(x)).toList();
+    consts = json["consts"]
+        .map<SteamConst>((dynamic x) => SteamConst.fromJson(x))
+        .toList();
 
-    enums = json["enums"].map<SteamEnum>((x) => SteamEnum.fromJson(x)).toList();
+    enums = json["enums"]
+        .map<SteamEnum>((dynamic x) => SteamEnum.fromJson(x))
+        .toList();
 
     interfaces = json["interfaces"]
-        .map<SteamInterface>((x) => SteamInterface.fromJson(x))
+        .map<SteamInterface>(
+          (dynamic x) => SteamInterface.fromJson(x),
+        )
         .toList();
 
     structs = json["structs"]
-        .map<SteamStruct>((x) => SteamStruct.fromJson(x))
+        .map<SteamStruct>((dynamic x) => SteamStruct.fromJson(x))
         .toList();
 
     typedefs = json["typedefs"]
-        .map<SteamTypedef>((x) => SteamTypedef.fromJson(x))
+        .map<SteamTypedef>((dynamic x) => SteamTypedef.fromJson(x))
         .toList();
   }
 }

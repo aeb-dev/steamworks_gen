@@ -24,7 +24,7 @@ class SteamEnum {
     name = json["enumname"];
     fqName = json["fqname"];
     values = json["values"]
-        .map<SteamEnumValue>((v) => SteamEnumValue.fromJson(v))
+        .map<SteamEnumValue>((dynamic v) => SteamEnumValue.fromJson(v))
         .toList();
   }
 }
